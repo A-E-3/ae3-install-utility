@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+LoadDaemonSettings
+
+if [ -z "$@" ]; then
+	echo "Memory allocation is: `GetMemoryAllocation`"
+	exit 0
+fi
+
+if echo $1 | fgrep -qoE "\b([0-9]*?)m\b"; then
+	ae3d_ram="$1"
+	StoreDaemonSettings
+	exit 0
+fi
+
+echo "Invalid memory allocation specification, use like: 512m, 768m, 2g..."
+exit 1

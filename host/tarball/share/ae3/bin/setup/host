@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+# extra software
+pkg install -y 'wget' 'rsync' 'openjdk8'
+
+################################################################################
+#
+# JAVA
+#
+#
+
+#	Fetching ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-9-current/All/dejavu-2.33.tbz... Done.
+#	
+#	Make sure that the freetype module is loaded.  If it is not, add the following
+#	line to the "Modules" section of your X Windows configuration file:
+#	
+#		Load "freetype"
+#	
+#	Add the following line to the "Files" section of X Windows configuration file:
+#	
+#		FontPath "/usr/local/lib/X11/fonts/dejavu/"
+#	
+#	Note: your X Windows configuration file is typically /etc/X11/XF86Config
+#	if you are using XFree86, and /etc/X11/xorg.conf if you are using X.Org.
+
+
+#	======================================================================
+#	
+#	This OpenJDK implementation requires fdescfs(5) mounted on /dev/fd and
+#	procfs(5) mounted on /proc.
+#	
+#	If you have not done it yet, please do the following:
+#	
+#		mount -t fdescfs fdesc /dev/fd
+#		mount -t procfs proc /proc
+#	
+#	To make it permanent, you need the following lines in /etc/fstab:
+#	
+#		fdesc	/dev/fd		fdescfs		rw	0	0
+#		proc	/proc		procfs		rw	0	0
+#	
+#	======================================================================
+
+
+
+grep fdesc /etc/fstab > /dev/null || echo 'fdesc /dev/fd fdescfs rw 0 0' >> /etc/fstab
+grep proc /etc/fstab > /dev/null || echo 'proc /proc procfs rw 0 0' >> /etc/fstab
+mount -a
+
+
+
+################################################################################
+#
+# POSTGRES
+#
+#
+
+
+
+### pkg install -y postgresql-server
+
+
+
+
+#        =========== BACKUP YOUR DATA! =============
+#        As always, backup your data before
+#        upgrading. If the upgrade leads to a higher
+#        minor revision (e.g. 8.3.x -> 8.4), a dump
+#        and restore of all databases is
+#        required. This is *NOT* done by the port!
+#      
+#        Press ctrl-C *now* if you need to pg_dump.
+#        ===========================================
+#       done
+#      The PostgreSQL port has a collection of "side orders":
+#      
+#      postgresql-docs
+#        For all of the html documentation
+#      
+#      p5-Pg
+#        A perl5 API for client access to PostgreSQL databases.
+#      
+#      postgresql-tcltk 
+#        If you want tcl/tk client support.
+#      
+#      postgresql-jdbc
+#        For Java JDBC support.
+#      
+#      postgresql-odbc
+#        For client access from unix applications using ODBC as access
+#        method. Not needed to access unix PostgreSQL servers from Win32
+#        using ODBC. See below.
+#      
+#      ruby-postgres, py-PyGreSQL
+#        For client access to PostgreSQL databases using the ruby & python
+#        languages.
+#      
+#      postgresql-plperl, postgresql-pltcl & postgresql-plruby
+#        For using perl5, tcl & ruby as procedural languages.
+#      
+#      postgresql-contrib
+#        Lots of contributed utilities, postgresql functions and
+#        datatypes. There you find pg_standby, pgcrypto and many other cool
+#        things.
+#      
+#      etc...
+#      For procedural languages and postgresql functions, please note that
+#      you might have to update them when updating the server.
+#      
+#      If you have many tables and many clients running, consider raising
+#      kern.maxfiles using sysctl(8), or reconfigure your kernel
+#      appropriately.
+#      
+#      The port is set up to use autovacuum for new databases, but you might
+#      also want to vacuum and perhaps backup your database regularly. There
+#      is a periodic script, /usr/local/etc/periodic/daily/502.pgsql, that
+#      you may find useful. You can use it to backup and perfom vacuum on all
+#      databases nightly. Per default, it perfoms `vacuum analyze'. See the
+#      script for instructions. For autovacuum settings, please review
+#      ~pgsql/data/postgresql.conf.
+#      
+#      If you plan to access your PostgreSQL server using ODBC, please
+#      consider running the SQL script /usr/local/share/postgresql/odbc.sql
+#      to get the functions required for ODBC compliance.
+#      
+#      Please note that if you use the rc script,
+#      /usr/local/etc/rc.d/postgresql, to initialize the database, unicode
+#      (UTF-8) will be used to store character data by default.  Set
+#      postgresql_initdb_flags or use login.conf settings described below to
+#      alter this behaviour. See the start rc script for more info.
+#      
+#      To set limits, environment stuff like locale and collation and other
+#      things, you can set up a class in /etc/login.conf before initializing
+#      the database. Add something similar to this to /etc/login.conf:
+#      ---
+#      postgres:\
+#              :lang=en_US.UTF-8:\
+#              :setenv=LC_COLLATE=C:\
+#              :tc=default:
+#      ---
+#      and run `cap_mkdb /etc/login.conf'.
+#      Then add 'postgresql_class="postgres"' to /etc/rc.conf.
+#      
+#      ======================================================================
+#      
+#      To initialize the database, run
+#      
+#        /usr/local/etc/rc.d/postgresql initdb
+#      
+#      You can then start PostgreSQL by running:
+#      
+#        /usr/local/etc/rc.d/postgresql start
+#      
+#      For postmaster settings, see ~pgsql/data/postgresql.conf
+#      
+#      NB. FreeBSD's PostgreSQL port logs to syslog by default
+#          See ~pgsql/data/postgresql.conf for more info
+#      
+#      ======================================================================
+#      
+#      To run PostgreSQL at startup, add
+#      'postgresql_enable="YES"' to /etc/rc.conf
+#      
+#      
+#      
+### sysrc 'postgresql_enable=YES'
+
+
+
+# Don't really need it and it is failing to install.
+# pkg install -y postgresql-jdbc
+
+
+
+#	PostgreSQL JDBC support installed!
+#	
+#	postgresql.jar resides in
+#	/usr/local/share/java/classes/postgresql.jar
+#	Add this to your CLASSPATH!
+#	
+#	java examples reside in
+#	/usr/local/share/examples/postgresql/jdbc
+
+
+
+################################################################################
+#
+# AE3
+#
+#
+
+"$AE3_BIN/upgrade"
+
+install -d -g ae3 -o ae3 "$AE3_HOME/private"
+install -d -g ae3 -o ae3 "$AE3_HOME/shared"
+
+sysrc 'ae3d_enable=YES'
+
+# ae3 restart || true
+ae3 start || echo "** NOTE: you need to start or restart ae3 daemon or the server to apply!"
+
+# completion for root in bash
+ae3 setup/console

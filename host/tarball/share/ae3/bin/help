@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../include/subr.sh
+
+
+
+echo "AE3 Script commands:"
+
+for ITEM in $(find "${AE3_BIN}" -type f | sed "s,${AE3_BIN}/,,g" | sort); do
+	echo "  $ITEM"
+done
+

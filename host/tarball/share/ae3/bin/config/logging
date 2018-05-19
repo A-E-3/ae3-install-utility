@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+LoadDaemonSettings
+
+if [ -z "$@" ]; then
+	echo "Logging level is: `GetLoggingLevel`"
+	exit 0
+fi
+
+case "$1" in
+	DEVEL)
+		;;
+	DEBUG)
+		;;
+	NORMAL)
+		;;
+	MINIMAL)
+		;;
+	*) echo "Invalid logging level, must be one of: DEVEL, DEBUG, NORMAL or MINIMAL"
+		exit 1
+		;;
+esac
+
+ae3d_logging="$1"
+
+StoreDaemonSettings

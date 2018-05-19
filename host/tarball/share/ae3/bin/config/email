@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+
+if [ -z "$@" ]; then
+	GetAdminEmail > /dev/null || { echo "Send all mail to: N/A"; exit 0; }
+	echo "Send all mail to: `GetAdminEmail`"
+	exit 0
+fi
+
+
+SetAdminEmail(){
+	local FR="^root:" EMAIL="$1"
+	grep -q -e "$FR" /etc/mail/aliases && \
+		grep -v -e "$FR" /etc/mail/aliases > /etc/mail/aliases.bak && \
+		chmod 644 /etc/mail/aliases.bak && \
+		mv /etc/mail/aliases.bak /etc/mail/aliases
+	
+	
+	if [ "$EMAIL" -a "$EMAIL" != "clear" ]; then
+		local TO="root: $EMAIL"
+		grep -q "$TO" /etc/mail/aliases || \
+			echo "$TO" >> /etc/mail/aliases
+		echo "$0: set to: $TO"
+	fi
+	
+	
+	# mail.aliases.refresh
+	rm -f /etc/aliases.db
+	newaliases > /dev/null
+}
+
+SetAdminEmail $1

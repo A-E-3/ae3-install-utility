@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+LoadDaemonSettings
+
+if [ -z "$@" ]; then
+	echo "Run-time asserts are: `GetAssertionsMode`"
+	exit 0
+fi
+
+case "$1" in
+	NONE)
+		;;
+	NORMAL)
+		;;
+	MOST)
+		;;
+	ALL)
+		;;
+	*) echo "Invalid optimization goal, must be one of: NONE, NORMAL, MOST or ALL"
+		exit 1
+		;;
+esac
+
+ae3d_assert="$1"
+
+StoreDaemonSettings

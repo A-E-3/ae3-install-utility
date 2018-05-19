@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../include/subr.sh
+
+UserIsRoot && { echo "Not supposed to be run under 'root' user!"; exit 1; }
+
+UserRequireOperator
+
+
+
+MORE_ARGS="$@"
+
+assertNONE(){
+	echo "-da -dsa"
+}
+
+assertNORMAL(){
+	echo "-da -dsa -ea:ru.myx..."
+}
+
+assertMOST(){
+	echo "-ea -dsa"
+}
+
+assertALL(){
+	echo "-ea -esa"
+}
+
+DAEMON_ENABLE=ENABLE
+
+buildCommand(){
+	LoadDaemonSettings
+
+	DAEMON_ENABLE="${ae3d_daemon:-"ENABLE"}"
+
+	local	ae3_assert="$(assert`GetAssertionsMode`)" \
+			ae3_logging="${ae3d_logging:-"NORMAL"}" \
+			ae3_mode="${ae3d_mode:-"live"}" \
+			ae3_optimize="${ae3d_optimize:-"DEFAULT"}" \
+			ae3_profile="`GetProfilingOptions`" \
+			ae3_storage="${ae3d_storage:-"s4fs:lcl:bdbje"}" \
+			ae3_ram="${ae3d_ram:-"512m"}" \
+			ae3_ip_listen="0.0.0.0" \
+			ae3_ip_public="0.0.0.0" \
+			ae3_ip_cluster="127.0.0.1" \
+			ae3_ip_local="127.0.0.1" \
+			ae3_email="`GetAdminEmail`" \
+	;
+
+
+
+	CMD=( \
+		/usr/local/bin/java \
+		-server \
+		-Xmx$ae3_ram \
+		-Xms$ae3_ram \
+		$ae3_javaopts \
+		-cp /usr/local/ae3/unpack/ \
+		$ae3_assert \
+		$ae3_profile \
+		-Duser.dir=$AE3_SHARED \
+		-Duser.home=$HOME \
+		-Djava.awt.headless=true \
+		-Djava.net.preferIPv4Stack=true \
+		-Djava.net.preferIPv6Addresses=false \
+		-Dnetworkaddress.cache.ttl=60 \
+		-Dnetworkaddress.cache.negative.ttl=10 \
+		-Dhttp.agent=ae3-`cat "$AE3_HOME/distro/version"` \
+		-Dae3=true \
+		-Dru.myx.ae3.properties.groupname=$ae3_mode \
+		-Dru.myx.ae3.properties.hostname=`hostname` \
+		-Dru.myx.ae3.properties.log.level=$ae3_logging \
+		-Dru.myx.ae3.properties.optimize=$ae3_optimize \
+		"-Dru.myx.ae3.properties.vfs.storage=$ae3_storage" \
+		-Dru.myx.ae3.properties.ip.wildcard.host=$ae3_ip_listen \
+		-Dru.myx.ae3.properties.ip.public.host=$ae3_ip_public \
+		-Dru.myx.ae3.properties.ip.cluster.host=$ae3_ip_cluster \
+		-Dru.myx.ae3.properties.ip.local.host=$ae3_ip_local \
+		-Dru.myx.ae3.properties.ip.shift.port=17000 \
+		-Dru.myx.ae3.properties.path.public=$AE3_PUBLIC \
+		-Dru.myx.ae3.properties.path.private=$AE3_PRIVATE \
+		-Dru.myx.ae3.properties.path.shared=$AE3_SHARED \
+		-Dru.myx.ae3.properties.path.protected=$AE3_CLUSTER \
+		-Dru.myx.ae3.properties.path.logs=$AE3_LOGS \
+		"-Dru.myx.ae3.properties.report.mailto=$ae3_email" \
+		-Dfile.encoding=utf-8 \
+		ru.myx.ae3.system.Main \
+		$MORE_ARGS \
+	)
+
+}
+
+function mkPrev(){
+	local filename=$1
+	[ -f "$filename" ] && mv -f "$filename" "${filename}.prev"
+	return 0;
+}
+
+PID=$$
+
+trap 'pkill -TERM -P $PID 2> /dev/null' EXIT
+
+IsDaemonTask(){
+	return $(UserIsDaemon && [ "$MORE_ARGS" = "shell --start server" -o "$MORE_ARGS" = "--start server" ]);
+}
+
+RemoveIn(){
+	[ -e "$AE3_STDIN" ] && rm -f "$AE3_STDIN"
+	return 0
+}
+
+if IsDaemonTask; then
+
+	mkdir -p "`dirname "$AE3_STDIN"`"
+	RemoveIn
+	trap 'pids=$(pgrep -P $PID); kill -TERM $pids 2> /dev/null && wait $pids 2> /dev/null; [ -e "$AE3_STDIN" ] && { printf "\x1a\x3" >> "$AE3_STDIN"; RemoveIn; }' EXIT
+
+fi
+
+while true; do
+
+	buildCommand
+	command=("${CMD[@]}")
+
+	mkdir -p "$AE3_LOGS"
+
+	mkPrev "$AE3_STDOUT_LOG"
+	mkPrev "$AE3_STDERR_LOG"
+
+	echo "Starting: ${command[*]}" > "$AE3_STDOUT_LOG"
+
+	if IsDaemonTask; then
+
+		printf "" > "$AE3_STDERR_LOG"
+		
+		if [ $DAEMON_ENABLE != "ENABLE" ]; then
+			echo "...daemon is disabled, check 'config/daemon' settings. exiting." >> "$AE3_STDERR_LOG"
+			exit 0
+		fi
+		
+		mkfifo "$AE3_STDIN"
+
+# doesn't exit on loop
+# ( while cat "$AE3_STDIN"; do :; done ) |
+ 
+		tail -F "$AE3_STDIN" | ( "${command[@]}" \
+			>> "$AE3_STDOUT_LOG" \
+			2>> "$AE3_STDERR_LOG" \
+			&& { RemoveIn; echo "----- clean exit" >> "$AE3_STDOUT_LOG"; exit 0; } \
+			|| { pkill -TERM -P $PID 2> /dev/null; RemoveIn; echo "----- finalizing" >> "$AE3_STDOUT_LOG"; } )
+		
+		pids="$(pgrep -P $PID)" || true
+		[ "$pids" ] && { \
+			echo "----- waiting ($pids)..." >> "$AE3_STDOUT_LOG"; \
+			kill -TERM $pids 2> /dev/null; \
+			wait $pids 2> /dev/null; \
+		}
+		
+	else
+
+		"${command[@]}" \
+			>> "$AE3_STDOUT_LOG" \
+			&& { echo "Clean exit" >> "$AE3_STDOUT_LOG"; exit 0; }
+
+		echo "Failed command: ${command[*]}"
+		echo "...sleeping 5 seconds..."
+		
+	fi
+
+	echo "----- process died with non 0 exit code, will try restart in 5 seconds..." >> "$AE3_STDOUT_LOG"
+	sleep 5
+	
+done

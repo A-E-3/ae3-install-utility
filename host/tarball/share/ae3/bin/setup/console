@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+
+# bash interactive
+cfg.bashrc() {
+	cat <<-EOF
+		complete -W '\`cd /usr/local/share/ae3/bin && find . -type f | sed "s,\./,,g" | sort\`' ae3
+	EOF
+}
+
+mkdir -p "$HOME/.ae3/etc"
+
+# bash interactive
+AddScriptInclude "$HOME/.bashrc" "$HOME/.ae3/etc/bashrc" "`cfg.bashrc`"

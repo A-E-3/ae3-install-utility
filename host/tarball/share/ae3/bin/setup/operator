@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+USER=$1
+
+if [ ! $USER ]; then
+	echo 'Existing user name is expected'
+	exit 1
+fi
+
+pw groupmod ae3 -m "$USER"
+echo "User $USER may need to re-login to gain operator privileges."

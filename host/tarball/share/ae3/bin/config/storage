@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+LoadDaemonSettings
+
+if [ -z "$@" ]; then
+	echo "Storage description is: `GetStorageDescription`"
+	exit 0
+fi
+
+case "$1" in
+	"" | "-" | ".")
+		ae3d_storage="s4fs:lcl:bdbje"
+		;;
+	*)
+		ae3d_storage="$1"
+		;;
+esac
+
+
+StoreDaemonSettings

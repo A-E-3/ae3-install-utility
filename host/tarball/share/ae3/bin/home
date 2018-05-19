@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../include/subr.sh
+
+UserRequireOperator
+echo "$AE3_HOME"

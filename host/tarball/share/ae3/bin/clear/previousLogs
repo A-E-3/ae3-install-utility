@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+#set -x
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+echo "Cleaning previous logs"
+
+STDOUT_PREV="$AE3_PRIVATE/logs/stdout.log.prev"
+if [ -f "$STDOUT_PREV" ] ; then
+	echo "removing: $(ls -al "$STDOUT_PREV")"
+	rm -f "$STDOUT_PREV" && echo "removed: $STDOUT_PREV"
+fi
+

@@ -1,0 +1,34 @@
+#!/bin/sh -e
+#
+#
+#
+
+AE3="/usr/local/share/ae3"
+
+COMMAND="$1"
+
+PrintDefault(){
+	>&2 echo 'AE3 Script'
+	>&2 echo '  try running "ae3 help" for commands or look at: http://ae3.myx.co.nz/'
+}
+
+if [ ! $COMMAND ]; then
+	PrintDefault
+	exit 1
+fi
+
+if [ ! -x "/usr/local/share/ae3/bin/$COMMAND" ]; then
+	# Get into bash
+	test -n "$BASH_VERSION" || exec bash -e "$0" "$@"
+	. "/usr/local/share/ae3/include/subr.sh"
+	
+	UserRequireOperator
+	
+	PrintDefault
+	>&2 echo "Unknown command: $COMMAND"
+	exit 1
+fi
+
+shift
+
+"/usr/local/share/ae3/bin/$COMMAND" "$@"

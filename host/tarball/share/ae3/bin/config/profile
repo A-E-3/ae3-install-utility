@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+LoadDaemonSettings
+
+if [ -z "$@" ]; then
+	echo "Profiling mode is: `GetProfilingMode`"
+	exit 0
+fi
+
+case "$1" in
+	OFF)
+		;;
+	YJP)
+		;;
+	JMX)
+		;;
+	*) echo "Invalid profiling mode, must be one of: OFF, YJP or JMX"
+		exit 1
+		;;
+esac
+
+ae3d_profile="$1"
+
+StoreDaemonSettings

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../include/subr.sh
+
+UserRequireOperator
+
+TEMP="$(mktemp -t ae3-dump)"
+
+tail -n 0 -F "$AE3_HOME/private/logs/stdout.log" > "$TEMP" &
+tail_pid=$!
+
+kill -QUIT `/usr/local/etc/rc.d/ae3d jpid`
+
+sleep 1
+
+kill -9 $tail_pid
+cat $TEMP | less

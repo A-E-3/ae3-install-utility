@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../include/subr.sh
+
+UserRequireOperator
+
+less "$AE3_HOME/private/logs/stdout.log"

@@ -1,0 +1,37 @@
+#!/bin/sh -e
+#
+#  ^^^^^^ this command cannot require bash explicitly
+
+
+#
+# Check user
+#
+test `id -u` != 0 && echo 'Must be root!' && exit 1
+
+################################################################################
+#
+# Install some general stuff, if not installed yet
+#
+################################################################################
+
+for ITEM in 'bash'; do
+	which "$ITEM" > /dev/null || ( echo "$0: SetInstall: $ITEM" && pkg install -y "$ITEM" )
+done
+
+
+# Could be not in bash, shouldn't fail script however
+rehash > /dev/null 2>&1 || true
+
+
+
+################################################################################
+#
+# Known environment, screen allows to survive disconnections and to attach
+# back (using 'screen -rd'), bash has useful extensions.
+#
+################################################################################
+
+
+AE3_DIR="$(echo ${PKG_PREFIX-/usr/local}/share/ae3 | /usr/bin/sed -e 's|//|/|g')"
+
+exec "$(which bash)" -e "$AE3_DIR/bin/setup/host" "$@"

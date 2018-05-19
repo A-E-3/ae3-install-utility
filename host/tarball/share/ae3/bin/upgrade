@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+. ${0%/*}/../include/subr.sh
+
+UserRequireRoot
+
+echo "$0: Checking for latest AE3..."
+
+# active distro (probably should be moved to public)
+AE3_DISTRO="$AE3_HOME/distro"
+
+# downloaded version (probably should be moved to protected)
+
+
+AE3_UPDATE="$(mktemp -d)"
+mount -t tmpfs tmpfs "$AE3_UPDATE"
+trap 'umount -f "$AE3_UPDATE" ; rm -fR "$AE3_UPDATE"' EXIT
+
+#TMPFS# rm -fR "$AE3_UPDATE"
+#TMPFS# mkdir -p "$AE3_UPDATE"
+
+mkdir -p "$AE3_DISTRO" "$AE3_UNPACK" "$AE3_PUBLIC"
+
+cp -pR "$AE3_DISTRO/" "$AE3_UPDATE"
+cd "$AE3_UPDATE"
+
+checkVersion(){
+	local	VER_DISTRO="`[ -f "$AE3_DISTRO/version" ] && cat "$AE3_DISTRO/version" || echo 0`" \
+			VER_UPDATE="`cat "$AE3_UPDATE/version"`" \
+	;
+			
+	[ "$VER_DISTRO" = "$VER_UPDATE" ] && { echo "$0: Nothing to update."; exit 0; }
+	echo "$0: Version changed: $VER_DISTRO -> $VER_UPDATE"
+}
+
+
+
+PKG_SRC="`GetInstallPath`"
+
+wget --no-check-certificate -nv -N \
+	"$PKG_SRC/version" \
+	|| { echo "$0: Error getting version file"; exit 1; }
+
+[ "$1" = "reinstall" ] || checkVersion
+
+wget --progress=bar --no-check-certificate -N \
+	"$PKG_SRC/ae3-axiom.tbz" \
+	"$PKG_SRC/ae3-classes.tbz" \
+	"$PKG_SRC/ae3-data.tbz" \
+	"$PKG_SRC/ae3-docs.tbz" \
+	|| { echo "$0: Error getting binary files"; exit 1; }
+
+
+CONTENTS_DIFFER=false
+
+for NAME in 'ae3-axiom.tbz' 'ae3-classes.tbz' 'ae3-data.tbz' 'ae3-docs.tbz'; do
+	cmp -s "$AE3_DISTRO/$NAME" "$AE3_UPDATE/$NAME" || { CONTENTS_DIFFER=true; break; }
+done
+
+$CONTENTS_DIFFER || [ "$1" = "reinstall" ] || { echo "$0: But binaries are still the same"; exit 0; }
+
+echo "unixtime: $(date +%s)"
+
+# ------------------------------------------------------------------------------
+# extract / replace
+#
+
+cp -pR "$AE3_UPDATE/" "$AE3_DISTRO"
+
+mkdir "$AE3_UPDATE/ae3-axiom"
+mkdir "$AE3_UPDATE/ae3-unpack"
+mkdir "$AE3_UPDATE/ae3-public"
+
+tar xvfj "$AE3_UPDATE/ae3-axiom.tbz" -C "$AE3_UPDATE/ae3-axiom" 2> /dev/null
+
+for NAME in `ls "$AE3_UPDATE/ae3-axiom"`; do
+	unzip -q -n -d "$AE3_UPDATE/ae3-unpack" -x "META-INF/*" "$AE3_UPDATE/ae3-axiom/$NAME" > /dev/null
+done
+
+tar xvfj "$AE3_UPDATE/ae3-classes.tbz" -C "$AE3_UPDATE/ae3-unpack" 2> /dev/null 
+
+tar xvfj "$AE3_UPDATE/ae3-data.tbz" -C "$AE3_UPDATE/ae3-public" 2> /dev/null 
+tar xvfj "$AE3_UPDATE/ae3-docs.tbz" -C "$AE3_UPDATE/ae3-public" 2> /dev/null 
+
+rsync -a --delete "$AE3_UPDATE/ae3-unpack/" "$AE3_UNPACK"
+rsync -a --delete "$AE3_UPDATE/ae3-public/" "$AE3_PUBLIC"
+
+#TMPFS# rm -fR "$AE3_UPDATE"
+
+echo "unixtime: $(date +%s)"

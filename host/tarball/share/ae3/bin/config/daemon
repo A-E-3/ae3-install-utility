@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+LoadDaemonSettings
+
+if [ -z "$@" ]; then
+	echo "Daemon process mode is: `GetDaemonProcessMode`"
+	exit 0
+fi
+
+case "$1" in
+	ENABLE)
+		;;
+	DISABLE)
+		;;
+	*) echo "Invalid daemon mode, must be one of: ENABLE or DISABLE"
+		exit 1
+		;;
+esac
+
+ae3d_daemon="$1"
+
+StoreDaemonSettings

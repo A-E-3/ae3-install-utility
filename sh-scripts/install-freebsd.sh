@@ -1,0 +1,67 @@
+#!/bin/sh -e
+
+# There are two ways:
+#
+# 1) fetch https://raw.githubusercontent.com/A-E-3/ae3-install-utility/master/sh-scripts/install-freebsd.sh -o - | sh -e
+# or
+# 2) To execute this as a script, run:
+#		sh -c 'eval "`cat`"'
+# on the target machine under the 'root' user, paste whole text from this file, then press CTRL+D.
+#
+
+
+echo 'AE3 BSD Installer started...'
+
+#
+# Check user
+#
+test `id -u` != 0 && echo 'ERROR: Must be root!' && exit 1
+
+fetch https://raw.githubusercontent.com/myx/os-myx.common-freebsd/master/sh-scripts/install-myx.common-freebsd.sh -o - | sh -e
+
+fetch https://github.com/A-E-3/ae3-install-utility/archive/master.zip -o - | \
+		tar zxvf - --cd "/usr/local/" --include "*/host/tarball/*" --strip-components 3
+
+if ! pw groupshow ae3 >/dev/null 2>&1; then \
+	 echo "Creating group 'ae3' with gid '173'.";  pw groupadd ae3 -g 173; \
+ else \
+ 	 echo "Using existing group 'ae3'."; \
+fi
+
+pwd_mkdb /etc/master.passwd
+if ! pw usershow ae3 >/dev/null 2>&1; then \
+	 echo "Creating user 'ae3' with uid '173'.";  pw useradd ae3 -u 173 -g 173  -c "AE3 pseudo-user" -d /usr/local/ae3 -s /bin/sh; \
+ else \
+	 echo "Using existing user 'ae3'."; \
+fi
+
+install -d -g 173 -o 173 /usr/local/ae3
+
+
+
+AE3_BIN="/usr/local/bin/ae3"
+AE3_SHR="/usr/local/share/ae3"
+AE3_DIR="/usr/local/ae3"
+ETC_DIR="/usr/local/etc"
+
+mkdir -p "$AE3_DIR/shared" "$AE3_DIR/private"
+
+chown root:ae3 "$AE3_BIN"
+chmod 755 "$AE3_BIN"
+
+chown -R root:ae3 "$AE3_SHR/bin"
+chmod -R 750 "$AE3_SHR/bin"
+
+chown -R root:ae3 "$AE3_DIR/shared"
+chmod -R 770 "$AE3_DIR/shared"
+
+chown -R root:ae3 "$AE3_DIR/private"
+chmod -R 770 "$AE3_DIR/private"
+
+chown root:wheel "$ETC_DIR/rc.d/ae3d"
+chmod 555 "$ETC_DIR/rc.d/ae3d"
+
+chown root:wheel "$ETC_DIR/periodic/daily/403.ae3"
+chmod 555 "$ETC_DIR/periodic/daily/403.ae3"
+
+exec "$AE3_SHR/bin/reinstall"

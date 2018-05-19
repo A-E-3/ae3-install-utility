@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../include/subr.sh
+
+UserRequireOperator
+
+/usr/local/etc/rc.d/ae3d status || true
+echo "ae3 home: $AE3_HOME"
+echo "ae3 jpid: `service ae3d jpid`"
+echo "  db-bdb-lcl: `du -hs $AE3_PRIVATE/data/bdbj-lcl/`"
+echo "  db-extra:   `du -hs $AE3_PRIVATE/data/extra/`"
+echo "  ae3-temp:   `du -hs $AE3_PRIVATE/temp/`"
+echo "  ae3-public: `du -hs $AE3_PUBLIC`"
+echo "  ae3-shared: `du -hs $AE3_SHARED`"
+echo "  ae3-unpack: `du -hs $AE3_UNPACK`"
+echo ""
+sysctl -a | grep thermal | grep temperature

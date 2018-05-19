@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -e
+#set -x
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+echo "ae3 daily"
+
+FOLDER="$AE3_PRIVATE/import/ip_geography/"
+
+mkdir -p "$FOLDER"
+cd "$FOLDER"
+
+if [ -d "bad" ] ; then
+	rm -rf "processed/*" || echo 'cant remove older bad files...' 
+fi
+if [ -d "processed" ] ; then
+	rm -rf "processed/*" || echo 'cant remove older processed files...' 
+fi
+
+fetch https://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-latest &
+fetch https://ftp.apnic.net/pub/stats/apnic/delegated-apnic-latest &
+fetch -o delegated-arin-latest https://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest &
+fetch https://ftp.apnic.net/pub/stats/iana/delegated-iana-latest &
+fetch http://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-latest &
+fetch https://ftp.ripe.net/ripe/stats/delegated-ripencc-latest &
+
+wait
+
+rm delete.when.ready

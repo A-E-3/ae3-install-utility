@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../include/subr.sh
+
+UserRequireOperator
+
+TOKEN=`GenerateToken`
+
+telnet -l "$TOKEN" localhost 17023

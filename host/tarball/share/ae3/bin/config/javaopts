@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+LoadDaemonSettings
+
+if [ -z "$@" ]; then
+	echo "Java Options are: `GetJavaOptions`"
+	exit 0
+fi
+
+case "$1" in
+	"" | "-" | ".")
+		ae3d_javaopts=""
+		;;
+	*)
+		ae3d_javaopts="$1"
+		;;
+esac
+
+
+StoreDaemonSettings

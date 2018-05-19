@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+ae3 config/email
+ae3 config/logging
+
+ae3 config/daemon
+ae3 config/assert
+ae3 config/optimize
+ae3 config/storage
+ae3 config/ram
+
+ae3 config/profile
+ae3 config/javaopts

@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireRoot
+
+if [ "$1" != "--yes" ]; then
+	echo ' WARNING: This command will install extra software and change the'
+	echo ' network configuration, specifically, it will install and reconfigure'
+	echo ' "ipfw" firewall from the scratch. If you are not sure that this is'
+	echo ' what really want, PLEASE, PRESS CTRL+C NOW!!! ...or type "yes" and'
+	echo ' press "enter" to proceed.'
+	echo ' You can suppress this confirmation by the --yes option.'
+	read confirm
+	if [ "$confirm" != "yes" ]; then
+		exit 1
+	fi
+fi
+
+
+
+# extra software
+pkg install -y sudo screen links bash nano wget curl rsync
+
+# rc.conf
+sysrc sshd_enable=YES
+sysrc moused_enable=YES
+sysrc ntpd_enable=YES
+sysrc ntpdate_enable=YES
+sysrc powerd_enable=YES
+sysrc fsck_enable=YES
+
+InternReplaceLine /usr/local/etc/sudoers "# %wheel ALL=(ALL) ALL" "%wheel ALL=(ALL) ALL"
+
+# update NTP date NOW!
+ntpdate -u -b pool.ntp.org || true
+
+InternReplaceLine /boot/loader.conf '^ipfw_load=*' 'ipfw_load="yes"'
+InternReplaceLine /boot/loader.conf '^ipfw_nat_load=*' 'ipfw_nat_load="no"'
+InternReplaceLine /boot/loader.conf '^dummynet_load*' 'dummynet_load="yes"'
+InternReplaceLine /boot/loader.conf '^ipdivert_load=*' 'ipdivert_load="no"'
+InternReplaceLine /boot/loader.conf '^autoboot_delay=*' 'autoboot_delay="2"'
+
+
+sysrc firewall_enable=YES
+sysrc firewall_script=/usr/local/etc/ipfw.sh
+sysrc firewall_type=OPEN
+
+touch /usr/local/etc/ipfw.sh
+
+cat > /usr/local/etc/ipfw.sh <<- 'EOF'
+	#!/bin/sh
+	/sbin/ipfw -f flush
+	/sbin/ipfw -f pipe flush
+	/sbin/ipfw -f queue flush
+	/sbin/ipfw -f table all flush
+	
+	/sbin/ipfw add 501 allow ip from any to me dst-port 22 in
+	
+	/sbin/ipfw add 502 fwd 127.0.0.1,17080 tcp from any to any dst-port 80 in
+	/sbin/ipfw add 502 fwd 127.0.0.1,17443 tcp from any to any dst-port 443 in
+	
+	/sbin/ipfw add 502 check-state
+	
+	/sbin/ipfw add 502 fwd 127.0.0.1,17022 tcp from any to any dst-port 122 in
+	/sbin/ipfw add 502 fwd 127.0.0.1,17053 tcp from any to any dst-port 153 in
+	
+	/sbin/ipfw add 502 fwd 127.0.0.1,17044 udp from any to me dst-port 9 in keep-state
+	/sbin/ipfw add 502 fwd 127.0.0.1,17044 udp from any to me dst-port 4044 in keep-state
+	/sbin/ipfw add 502 fwd 127.0.0.1,17047 udp from any to me dst-port 4047 in keep-state
+
+	#/sbin/ipfw nat 2 config unreg_only redirect_port udp 0.0.0.0:17047 4047
+	#/sbin/ipfw add 502 nat 2 udp from me to any src-port 17047 out
+	#/sbin/ipfw add 502 nat 2 udp from any to me dst-port 4047 in
+
+	#/sbin/ipfw nat 3 config unreg_only redirect_port udp 0.0.0.0:17044 4044
+	#/sbin/ipfw add 502 nat 3 udp from me to any src-port 17044 out
+	#/sbin/ipfw add 502 nat 3 udp from any to me dst-port 4044 in
+
+	#/sbin/ipfw nat 4 config unreg_only redirect_port udp 0.0.0.0:17045 4045
+	#/sbin/ipfw add 502 nat 4 udp from me to any src-port 17045 out
+	#/sbin/ipfw add 502 nat 4 udp from any to me dst-port 4045 in
+
+	#/sbin/ipfw add 502 nat 2 udp from me to any src-port 17047 keep-state
+	#/sbin/ipfw add 502 nat 2 udp from any to me dst-port 4047 keep-state
+	
+	/sbin/ipfw add 502 fwd 127.0.0.1,17053 udp from any to me dst-port 153 in keep-state
+	
+	/sbin/ipfw add 900 allow ip from any to any
+EOF
+
+chmod 755 /usr/local/etc/ipfw.sh
+
+rm -f nohup.out || true
+nohup -- sh -c 'kldload ipfw_nat || true; service ipfw start || /usr/local/etc/ipfw.sh || true'
+cat nohup.out
+
+
+echo 'Should listen on normal, like: 80, 443, etc... ports now'
