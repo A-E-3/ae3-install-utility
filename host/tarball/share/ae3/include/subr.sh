@@ -204,7 +204,7 @@ AddScriptInclude(){
 }
 
 
-AE3="$(echo ${PKG_PREFIX-/usr/local}/share/ae3 | sed -e 's|//|/|g')"
+AE3="/usr/local/share/ae3"
 AE3_BIN="$AE3/bin"
 AE3_HOME="/usr/local/ae3"
 

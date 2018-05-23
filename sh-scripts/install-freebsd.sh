@@ -22,7 +22,7 @@ fetch https://raw.githubusercontent.com/myx/os-myx.common/master/sh-scripts/inst
 fetch https://github.com/A-E-3/ae3-install-utility/archive/master.zip -o - | \
 		tar zxvf - --cd "/usr/local/" --include "*/host/tarball/*" --strip-components 3
 
-myx.common installUser ae3 "AE3 pseudo-user" 173 /usr/local/ae3
+myx.common lib/installUser ae3 "AE3 pseudo-user" 173 /usr/local/ae3
 
 install -d -g 173 -o 173 /usr/local/ae3
 

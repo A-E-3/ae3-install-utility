@@ -3,6 +3,6 @@
 # update NTP date NOW!
 ntpdate -u -b pool.ntp.org || true
 
-AE3_DIR="$(echo ${PKG_PREFIX-/usr/local}/share/ae3 | /usr/bin/sed -e 's|//|/|g')"
+AE3_DIR="/usr/local}/share/ae3"
 
 exec "$(which bash)" -e "$AE3_DIR/bin/periodic/daily"
