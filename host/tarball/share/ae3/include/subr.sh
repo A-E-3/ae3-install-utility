@@ -41,14 +41,6 @@ UserRequireDaemon(){
 }
 
 
-SetRcEnable(){
-	for ITEM in "$1"; do
-		echo "$0: SetRcEnable: $ITEM"
-		sysrc "${ITEM}_enable=YES"
-	done
-	return 0;
-}
-
 
 GetInstallPath(){
 	for CHECK in 'macmyxpro'; do
