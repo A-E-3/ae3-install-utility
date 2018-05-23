@@ -22,18 +22,7 @@ fetch https://raw.githubusercontent.com/myx/os-myx.common/master/sh-scripts/inst
 fetch https://github.com/A-E-3/ae3-install-utility/archive/master.zip -o - | \
 		tar zxvf - --cd "/usr/local/" --include "*/host/tarball/*" --strip-components 3
 
-if ! pw groupshow ae3 >/dev/null 2>&1; then \
-	 echo "Creating group 'ae3' with gid '173'.";  pw groupadd ae3 -g 173; \
- else \
- 	 echo "Using existing group 'ae3'."; \
-fi
-
-pwd_mkdb /etc/master.passwd
-if ! pw usershow ae3 >/dev/null 2>&1; then \
-	 echo "Creating user 'ae3' with uid '173'.";  pw useradd ae3 -u 173 -g 173  -c "AE3 pseudo-user" -d /usr/local/ae3 -s /bin/sh; \
- else \
-	 echo "Using existing user 'ae3'."; \
-fi
+myx.common installUser ae3 "AE3 pseudo-user" 173 /usr/local/ae3
 
 install -d -g 173 -o 173 /usr/local/ae3
 
