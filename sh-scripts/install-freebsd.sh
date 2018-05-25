@@ -20,7 +20,7 @@ test `id -u` != 0 && echo 'ERROR: Must be root!' && exit 1
 
 fetch https://raw.githubusercontent.com/myx/os-myx.common/master/sh-scripts/install-myx.common.sh -o - | sh -e
 
-fetch https://github.com/A-E-3/ae3-install-utility/archive/master.zip -o - | \
+fetch https://github.com/A-E-3/ae3-install-utility/archive/master.tar.gz -o - | \
 		tar zxvf - -C "/usr/local/" --include "*/host/tarball/*" --strip-components 3
 
 myx.common lib/installUser ae3 "AE3 pseudo-user" 173 /usr/local/ae3
