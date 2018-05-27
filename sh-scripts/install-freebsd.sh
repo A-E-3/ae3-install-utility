@@ -17,10 +17,13 @@ echo 'AE3 BSD Installer started...'
 test `id -u` != 0 && echo 'ERROR: Must be root!' && exit 1
 
 ######################################
+if [ -d "/usr/local/myx.distro/local-deploy-cache" ] ; then
+	export ENV_FETCH_LOCAL_CACHE="/usr/local/myx.distro/local-deploy-cache"
+fi
 
 fetch https://raw.githubusercontent.com/myx/os-myx.common/master/sh-scripts/install-myx.common.sh -o - | sh -e
 
-fetch https://github.com/A-E-3/ae3-install-utility/archive/master.tar.gz -o - | \
+myx.common lib/fetchStdout https://github.com/A-E-3/ae3-install-utility/archive/master.tar.gz | \
 		tar zxvf - -C "/usr/local/" --include "*/host/tarball/*" --include "*/host-freebsd/tarball/*" --strip-components 3
 
 myx.common lib/installUser ae3 "AE3 pseudo-user" 173 /usr/local/ae3
