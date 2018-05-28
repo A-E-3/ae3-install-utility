@@ -42,15 +42,6 @@ UserRequireDaemon(){
 
 
 
-GetInstallPath(){
-	for CHECK in 'macmyxpro'; do
-		hostname | grep -q $CHECK && { echo 'http://172.16.190.1:8080/!/skin/skin-check-things/$files/distro/ae3'; return 0; }
-	done
-	echo 'https://myx.ru/distro/ae3'
-	return 0;
-}
-
-
 GetAdminEmail(){
 	local FR="^root:"
 	grep -q -e "$FR" /etc/mail/aliases || { echo "no admin email specified, use: ae3 config/email your@email.address"; return 1; }

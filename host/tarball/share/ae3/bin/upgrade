@@ -38,7 +38,7 @@ checkVersion(){
 
 
 
-PKG_SRC="`GetInstallPath`"
+PKG_SRC="https://myx.ru/distro/ae3"
 
 wget --no-check-certificate -nv -N \
 	"$PKG_SRC/version" \
