@@ -1,5 +1,4 @@
 Name: ae3-install-utility
-Requires: 
 Provides: ae3/ae3-install-utility \
 	build-prepare:host-tarball.tbz \
 	build-prepare:project-source.tgz \
