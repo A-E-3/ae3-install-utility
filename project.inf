@@ -1,5 +1,6 @@
 Name: ae3-install-utility
 Provides: ae3/ae3-install-utility \
+	build-prepare:increment:build.number \
 	build-prepare:host-tarball.tbz \
 	build-prepare:project-source.tgz \
 	deploy-export:host-tarball.tbz:myx.ru/distro/ae3/ae3.tbz \
