@@ -1,18 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -e
 
-. ${0%/*}/../../include/subr.sh
+ae3 setup/console
 
+#### temp: remove old ones
+if [ "`type -t ReplaceLine`" != "function" ] ; then
+. "/usr/local/share/myx.common/bin/lib/replaceLine"
+fi
+oldScriptName="$HOME/.ae3/etc/bashrc"
+[ ! -f "$oldScriptName" ] || rm "$oldScriptName"
+ReplaceLine "$HOME/.bashrc" "source $oldScriptName" ""
+ReplaceLine "$HOME/.bashrc" ". $oldScriptName" ""
 
-# bash interactive
-cfg.bashrc() {
-	cat <<-EOF
-		complete -W '\`cd /usr/local/share/ae3/bin && find . -type f | sed "s,\./,,g" | sort\`' ae3
-	EOF
-}
-
-mkdir -p "$HOME/.ae3/etc"
-
-# bash interactive
-AddScriptInclude "$HOME/.bashrc" "$HOME/.ae3/etc/bashrc" "`cfg.bashrc`"
+myx.common lib/setupShellCompletion ae3 --directory '/usr/local/share/ae3/bin'

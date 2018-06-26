@@ -2,8 +2,16 @@
 # Not executable as a separate unit.
 #
 
-. /usr/local/share/myx.common/include/subr.sh
+if [ "`type -t UserRequireRoot`" != "function" ] ; then
+. "/usr/local/share/myx.common/bin/user/requireRoot"
+fi
+if [ "`type -t ReplaceLine`" != "function" ] ; then
+. "/usr/local/share/myx.common/bin/lib/replaceLine"
+fi
 
+UserIsRoot(){
+	return $(test `id -u` = 0);
+}
 
 
 #
@@ -180,19 +188,6 @@ GenerateToken(){
 }
 
 
-
-AddScriptInclude(){
-	local TGT_SCRIPT="$1"
-	local OWN_SCRIPT="$2"
-	local OWN_SOURCE="$3"
-	local CMD_SOURCE="${4:-"."}"
-
-	echo "$OWN_SOURCE" > "$OWN_SCRIPT"
-	[ -f "$TGT_SCRIPT" ] || touch "$TGT_SCRIPT"
-	[ -f "$TGT_SCRIPT" ] && [ "$CMD_SOURCE" != "source" ] && InternReplaceLine "$TGT_SCRIPT" "source $OWN_SCRIPT" ""
-	[ -f "$TGT_SCRIPT" ] && [ "$CMD_SOURCE" != "." ] && InternReplaceLine "$TGT_SCRIPT" ". $OWN_SCRIPT" ""
-	[ -f "$TGT_SCRIPT" ] && InternReplaceLine "$TGT_SCRIPT" "# $CMD_SOURCE $OWN_SCRIPT" "$CMD_SOURCE $OWN_SCRIPT"
-}
 
 
 AE3="/usr/local/share/ae3"

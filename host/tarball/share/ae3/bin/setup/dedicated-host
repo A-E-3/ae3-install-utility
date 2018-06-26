@@ -4,7 +4,7 @@ set -e
 
 . ${0%/*}/../../include/subr.sh
 
-UserRequireRoot
+UserRequireRoot "setup/dedicated-host"
 
 if [ "$1" != "--yes" ]; then
 	echo ' WARNING: This command will install extra software and change the'
@@ -32,16 +32,16 @@ sysrc ntpdate_enable=YES
 sysrc powerd_enable=YES
 sysrc fsck_enable=YES
 
-InternReplaceLine /usr/local/etc/sudoers "# %wheel ALL=(ALL) ALL" "%wheel ALL=(ALL) ALL"
+ReplaceLine /usr/local/etc/sudoers "# %wheel ALL=(ALL) ALL" "%wheel ALL=(ALL) ALL"
 
 # update NTP date NOW!
 ntpdate -u -b pool.ntp.org || true
 
-InternReplaceLine /boot/loader.conf '^ipfw_load=*' 'ipfw_load="yes"'
-InternReplaceLine /boot/loader.conf '^ipfw_nat_load=*' 'ipfw_nat_load="no"'
-InternReplaceLine /boot/loader.conf '^dummynet_load*' 'dummynet_load="yes"'
-InternReplaceLine /boot/loader.conf '^ipdivert_load=*' 'ipdivert_load="no"'
-InternReplaceLine /boot/loader.conf '^autoboot_delay=*' 'autoboot_delay="2"'
+ReplaceLine /boot/loader.conf '^ipfw_load=*' 'ipfw_load="yes"'
+ReplaceLine /boot/loader.conf '^ipfw_nat_load=*' 'ipfw_nat_load="no"'
+ReplaceLine /boot/loader.conf '^dummynet_load*' 'dummynet_load="yes"'
+ReplaceLine /boot/loader.conf '^ipdivert_load=*' 'ipdivert_load="no"'
+ReplaceLine /boot/loader.conf '^autoboot_delay=*' 'autoboot_delay="2"'
 
 
 sysrc firewall_enable=YES
