@@ -2,8 +2,6 @@
 
 set -e
 
-ae3 setup/console
-
 #### temp: remove old ones
 
 type ReplaceLine >/dev/null 2>&1 || \
