@@ -143,7 +143,7 @@ GetProfilingOptions(){
 		OFF)
 			;;
 		YJP)
-			echo " -agentpath:$AE3_PUBLIC/resources/data/yjp-agent/freebsd-x86-64/libyjpagent.so=listen=127.0.0.1:10001,delay=30000,sessionname=ae3d "
+			echo " -agentpath:/usr/local/share/ae3/yjp/freebsd-x86-64/libyjpagent.so=listen=127.0.0.1:10001,delay=30000,sessionname=ae3d "
 			;;
 		JMX)
 			echo \
