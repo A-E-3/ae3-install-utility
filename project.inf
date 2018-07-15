@@ -1,8 +1,8 @@
 Name: ae3-install-utility
 Provides: ae3/ae3-install-utility \
-	build-prepare:increment:build.number \
-	build-prepare:host-tarball.tbz \
-	build-prepare:project-source.tgz \
+	source-prepare:increment:build.number \
+	source-process:host-tarball.tbz \
+	source-process:project-source.tgz \
 	deploy-export:host-tarball.tbz:myx.ru/distro/ae3/ae3.tbz \
 	deploy-export:project-source.tgz:github.com/A-E-3/ae3-install-utility/archive/master.tar.gz \
 	deploy-export:sh-scripts/install-freebsd.sh:myx.ru/distro/ae3/unix-shell/install-bsd.sh  \
