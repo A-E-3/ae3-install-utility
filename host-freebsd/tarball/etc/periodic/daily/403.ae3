@@ -3,6 +3,7 @@
 # update NTP date NOW!
 ntpdate -u -b pool.ntp.org || true
 
-AE3_DIR="/usr/local}/share/ae3"
+AE3_DIR="/usr/local/share/ae3"
 
-exec "$(which bash)" -e "$AE3_DIR/bin/periodic/daily"
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:
+exec bash -e "$AE3_DIR/bin/periodic/daily"
