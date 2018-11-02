@@ -176,6 +176,20 @@ GetMemoryAllocation(){
 
 
 
+Fetch(){
+	local URL="$1"
+	local FILE="$2"
+	set -e
+
+	if [ ! -z "`which curl || true`" ]  ; then echo "using curl: "  && ( curl --silent -L "$URL" > "$FILE" )  ; return 0 ; fi
+	if [ ! -z "`which fetch || true`" ] ; then echo "using fetch: " && ( fetch -o - "$URL" > "$FILE" )        ; return 0 ; fi
+	if [ ! -z "`which wget || true`" ]  ; then echo "using wget: "  && ( wget --quiet -O - "$URL" > "$FILE" ) ; return 0 ; fi
+
+	echo "ERROR: curl, fetch or wget were not found, do not know how to download!"
+	exit 1
+}
+
+
 GenerateToken(){
 	UserRequireOperator
 	local FOLDR=${AE3_HOME}/private/auth/tokens

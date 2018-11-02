@@ -21,12 +21,12 @@ if [ -d "processed" ] ; then
 	rm -rf "processed/*" || echo 'cant remove older processed files...' 
 fi
 
-fetch https://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-latest &
-fetch https://ftp.apnic.net/pub/stats/apnic/delegated-apnic-latest &
-fetch -o delegated-arin-latest https://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest &
-fetch https://ftp.apnic.net/pub/stats/iana/delegated-iana-latest &
-fetch http://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-latest &
-fetch https://ftp.ripe.net/ripe/stats/delegated-ripencc-latest &
+Fetch https://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-latest 	delegated-afrinic-latest &
+Fetch https://ftp.apnic.net/pub/stats/apnic/delegated-apnic-latest 			delegated-apnic-latest &
+Fetch https://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest 	delegated-arin-latest &
+Fetch https://ftp.apnic.net/pub/stats/iana/delegated-iana-latest 			delegated-iana-latest &
+Fetch http://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-latest 		delegated-lacnic-latest &
+Fetch https://ftp.ripe.net/ripe/stats/delegated-ripencc-latest 				delegated-ripencc-latest &
 
 wait
 
