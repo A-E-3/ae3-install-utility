@@ -15,10 +15,10 @@ mkdir -p "$FOLDER"
 cd "$FOLDER"
 
 if [ -d "bad" ] ; then
-	rm -rf "bad/*" || echo 'cant remove older bad files...' 
+	find bad -name "*" -mtime +8 -type file -exec rm -f {} \; 
 fi
 if [ -d "processed" ] ; then
-	rm -rf "processed/*" || echo 'cant remove older processed files...' 
+	find processed -name "*" -mtime +8 -type file -exec rm -f {} \; 
 fi
 
 Fetch https://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-latest 	delegated-afrinic-latest &
