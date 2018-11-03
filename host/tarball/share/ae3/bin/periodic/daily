@@ -15,7 +15,7 @@ mkdir -p "$FOLDER"
 cd "$FOLDER"
 
 if [ -d "bad" ] ; then
-	rm -rf "processed/*" || echo 'cant remove older bad files...' 
+	rm -rf "bad/*" || echo 'cant remove older bad files...' 
 fi
 if [ -d "processed" ] ; then
 	rm -rf "processed/*" || echo 'cant remove older processed files...' 
