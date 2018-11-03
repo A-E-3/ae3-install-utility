@@ -181,9 +181,15 @@ Fetch(){
 	local FILE="$2"
 	set -e
 
-	if [ ! -z "`which curl || true`" ]  ; then echo "using curl: "  && ( curl --silent -o "$FILE" -L "$URL" )  ; return 0 ; fi
-	if [ ! -z "`which fetch || true`" ] ; then echo "using fetch: " && ( fetch -o "$FILE" "$URL" )        ; return 0 ; fi
-	if [ ! -z "`which wget || true`" ]  ; then echo "using wget: "  && ( wget --quiet -O "$FILE" "$URL" ) ; return 0 ; fi
+	if [ ! -z "`which curl || true`" ] ; then 
+		curl --silent -o "$FILE" -L "$URL" ; return 0
+	fi
+	if [ ! -z "`which fetch || true`" ] ; then 
+		fetch -o "$FILE" "$URL" ; return 0
+	fi
+	if [ ! -z "`which wget || true`" ] ; then 
+		wget --quiet -O "$FILE" "$URL" ; return 0
+	fi
 
 	echo "ERROR: curl, fetch or wget were not found, do not know how to download!"
 	exit 1
