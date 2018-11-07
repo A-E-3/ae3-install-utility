@@ -182,13 +182,13 @@ Fetch(){
 	set -e
 
 	if [ ! -z "`which curl || true`" ] ; then 
-		curl --silent -o "$FILE" -L "$URL" ; return 0
+		curl --silent -o "$FILE" -L "$URL" ; chmod 664 "$FILE" ; return 0
 	fi
 	if [ ! -z "`which fetch || true`" ] ; then 
-		fetch -o "$FILE" "$URL" ; return 0
+		fetch -m -a -o "$FILE" "$URL" ; chmod 664 "$FILE" ; return 0
 	fi
 	if [ ! -z "`which wget || true`" ] ; then 
-		wget --quiet -O "$FILE" "$URL" ; return 0
+		wget --quiet -O "$FILE" "$URL" ; chmod 664 "$FILE" ; return 0
 	fi
 
 	echo "ERROR: curl, fetch or wget were not found, do not know how to download!"
