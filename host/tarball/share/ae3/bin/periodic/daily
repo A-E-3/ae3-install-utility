@@ -21,12 +21,12 @@ if [ -d "processed" ] ; then
 	find processed -name "*" -mtime +8 -type file -exec rm -f {} \; 
 fi
 
-Fetch https://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-latest 	inbox/delegated-afrinic-latest &
-Fetch https://ftp.apnic.net/pub/stats/apnic/delegated-apnic-latest 			inbox/delegated-apnic-latest &
-Fetch https://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest 	inbox/delegated-arin-latest &
-Fetch https://ftp.apnic.net/pub/stats/iana/delegated-iana-latest 			inbox/delegated-iana-latest &
-Fetch http://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-latest 		inbox/delegated-lacnic-latest &
-Fetch https://ftp.ripe.net/ripe/stats/delegated-ripencc-latest 				inbox/delegated-ripencc-latest &
+Fetch https://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-latest 	delegated-afrinic-latest &
+Fetch https://ftp.apnic.net/pub/stats/apnic/delegated-apnic-latest 			delegated-apnic-latest &
+Fetch https://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest 	delegated-arin-latest &
+Fetch https://ftp.apnic.net/pub/stats/iana/delegated-iana-latest 			delegated-iana-latest &
+Fetch http://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-latest 		delegated-lacnic-latest &
+Fetch https://ftp.ripe.net/ripe/stats/delegated-ripencc-latest 				delegated-ripencc-latest &
 
 wait
 
