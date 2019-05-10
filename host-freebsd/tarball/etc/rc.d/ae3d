@@ -17,7 +17,7 @@ pidfile="/usr/local/ae3/.daemon.pid"
 
 extra_commands="jpid"
 # jpid_cmd='echo $(pgrep -P `cat $pidfile`) || false'
-jpid_cmd='echo $(test -f "/etc/passwd" && test -f "$pidfile" && ( pgrep -P `pgrep -P $(cat "$pidfile") -n` || "failed!") || echo "not running.")'
+jpid_cmd='echo $(test -f "/etc/passwd" && test -f "$pidfile" && ( pgrep -P $(pgrep -P $(cat "$pidfile") -n) || "failed!") || echo "not running.")'
 
 ae3d_enable="${ae3d_enable:-"NO"}"
 ae3d_chdir="${ae3d_chdir:-"/usr/local/ae3"}"

@@ -6,4 +6,4 @@ set -e
 
 UserRequireOperator
 
-/usr/local/etc/rc.d/ae3d jpid
+service ae3d jpid
