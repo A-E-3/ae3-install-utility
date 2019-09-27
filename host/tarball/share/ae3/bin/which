@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# This script is universal for FreeBSD, Darwin, Ubuntu.
+
+Which(){
+	local COMMAND="$1"
+	[ -z "$COMMAND" ] && echo "Which: COMMAND argument is required!" && exit 1
+	local CHECK="/usr/local/share/ae3/bin/$COMMAND"
+	[ -f "$CHECK" ] && echo "$CHECK" && return 0
+	return 1
+}
+
+case "$0" in
+	*/ae3/bin/which) 
+		if [ -z "$1" ] ; then
+			echo "Syntax: ae3 which AE3-COMMON-COMMAND" >&2
+			echo "    outputs a full path to stdout or dies with error exit code." >&2
+			exit 1
+		fi
+		set -e
+		Which "$@"
+	;;
+esac
