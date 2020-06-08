@@ -33,8 +33,7 @@ export HOME=`pw usershow "$ae3d_user" | cut -f9 -d:`
 procname="$bash_command"
 
 command="/usr/sbin/daemon"
-command_args="-f -p $pidfile $bash_command $ae3d_command --start server"
-command_args="-p $pidfile $bash_command $ae3d_command --start server"
+command_args="-f -S -p $pidfile $bash_command $ae3d_command --start server"
 
 required_files="$ae3d_command $bash_command"
 

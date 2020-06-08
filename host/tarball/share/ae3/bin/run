@@ -93,7 +93,7 @@ buildCommand(){
 }
 
 function mkPrev(){
-	local filename=$1
+	local filename="$1"
 	[ -f "$filename" ] && mv -f "$filename" "${filename}.prev"
 	return 0;
 }
