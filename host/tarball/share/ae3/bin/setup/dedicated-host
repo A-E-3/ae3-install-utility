@@ -48,14 +48,34 @@ sysrc firewall_enable=YES
 sysrc firewall_script=/usr/local/etc/ipfw.sh
 sysrc firewall_type=OPEN
 
-touch /usr/local/etc/ipfw.sh
-
-cat > /usr/local/etc/ipfw.sh <<- 'EOF'
+sed -e 's/^[ \t]*//' > /usr/local/etc/ipfw.sh <<- 'EOF'
 	#!/bin/sh
+	
 	/sbin/ipfw -f flush
 	/sbin/ipfw -f pipe flush
 	/sbin/ipfw -f queue flush
 	/sbin/ipfw -f table all flush
+	
+	/sbin/ipfw add 900 allow ip from any to any
+	
+	[ -s /usr/local/etc/ipfw-system.sh ] && . /usr/local/etc/ipfw-system.sh ## myx-system-ipfw
+	[ -s /usr/local/etc/ipfw-beaver.sh ] && . /usr/local/etc/ipfw-beaver.sh ## beaver-ipfw
+	[ -s /usr/local/etc/ipfw-custom.sh ] && . /usr/local/etc/ipfw-custom.sh ## myx-ipfw-custom
+EOF
+
+sed -e 's/^[ \t]*//' > /usr/local/etc/ipfw-reset.sh <<- 'EOF'
+	#!/bin/sh
+	
+	/sbin/ipfw -f flush
+	/sbin/ipfw -f pipe flush
+	/sbin/ipfw -f queue flush
+	/sbin/ipfw -f table all flush
+	
+	/sbin/ipfw add 900 allow ip from any to any
+EOF
+
+sed -e 's/^[ \t]*//' > /usr/local/etc/ipfw-system.sh <<- 'EOF'
+	#!/bin/sh
 	
 	/sbin/ipfw add 501 allow ip from any to me dst-port 22 in
 	
@@ -87,11 +107,10 @@ cat > /usr/local/etc/ipfw.sh <<- 'EOF'
 	#/sbin/ipfw add 502 nat 2 udp from any to me dst-port 4047 keep-state
 	
 	/sbin/ipfw add 502 fwd 127.0.0.1,17053 udp from any to me dst-port 153 in keep-state
-	
-	/sbin/ipfw add 900 allow ip from any to any
 EOF
 
-chmod 755 /usr/local/etc/ipfw.sh
+chown root:wheel /usr/local/etc/ipfw.sh /usr/local/etc/ipfw-*.sh
+chmod ug=rwx,o= /usr/local/etc/ipfw.sh /usr/local/etc/ipfw-*.sh
 
 rm -f nohup.out || true
 nohup -- sh -c 'kldload ipfw_nat || true; service ipfw start || /usr/local/etc/ipfw.sh || true'
