@@ -58,9 +58,8 @@ sed -e 's/^[ \t]*//' > /usr/local/etc/ipfw.sh <<- 'EOF'
 	
 	/sbin/ipfw add 900 allow ip from any to any
 	
-	[ -s /usr/local/etc/ipfw-system.sh ] && . /usr/local/etc/ipfw-system.sh ## myx-system-ipfw
-	[ -s /usr/local/etc/ipfw-beaver.sh ] && . /usr/local/etc/ipfw-beaver.sh ## beaver-ipfw
-	[ -s /usr/local/etc/ipfw-custom.sh ] && . /usr/local/etc/ipfw-custom.sh ## myx-ipfw-custom
+	[ -s /usr/local/etc/ipfw-system.sh ] && . /usr/local/etc/ipfw-system.sh || true ## myx-system-ipfw
+	[ -s /usr/local/etc/ipfw-custom.sh ] && . /usr/local/etc/ipfw-custom.sh || true ## myx-ipfw-custom
 EOF
 
 sed -e 's/^[ \t]*//' > /usr/local/etc/ipfw-reset.sh <<- 'EOF'
@@ -77,10 +76,17 @@ EOF
 sed -e 's/^[ \t]*//' > /usr/local/etc/ipfw-system.sh <<- 'EOF'
 	#!/bin/sh
 	
-	/sbin/ipfw add 501 allow ip from any to me dst-port 22 in
-	
 	/sbin/ipfw add 502 fwd 127.0.0.1,17080 tcp from any to any dst-port 80 in
 	/sbin/ipfw add 502 fwd 127.0.0.1,17443 tcp from any to any dst-port 443 in
+	
+	/sbin/ipfw add 501 allow tcp from any to me dst-port 17081 in
+	/sbin/ipfw add 501 allow tcp from any to me dst-port 17080 in
+	/sbin/ipfw add 501 allow tcp from any to me dst-port 17443 in
+
+	/sbin/ipfw add 501 allow tcp from any to me dst-port 22 in
+
+	/sbin/ipfw add 501 allow tcp from me to any dst-port 80,443 out
+	/sbin/ipfw add 501 allow ip from me to any dst-port 9,4044 out
 	
 	/sbin/ipfw add 502 check-state
 	
@@ -113,7 +119,7 @@ chown root:wheel /usr/local/etc/ipfw.sh /usr/local/etc/ipfw-*.sh
 chmod ug=rwx,o= /usr/local/etc/ipfw.sh /usr/local/etc/ipfw-*.sh
 
 rm -f nohup.out || true
-nohup -- sh -c 'kldload ipfw_nat || true; service ipfw start || /usr/local/etc/ipfw.sh || true'
+nohup -- sh -c 'kldload ipfw_nat || true; service ipfw restart || service ipfw onestart || /usr/local/etc/ipfw.sh || true'
 cat nohup.out
 
 
