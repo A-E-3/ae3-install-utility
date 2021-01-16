@@ -20,7 +20,8 @@ case "$1" in
 		;;
 	JMX)
 		;;
-	*) echo "Invalid profiling mode, must be one of: OFF, YJP or JMX"
+	*) 
+		echo "ERROR: Invalid profiling mode, must be one of: OFF, YJP or JMX" >&2
 		exit 1
 		;;
 esac

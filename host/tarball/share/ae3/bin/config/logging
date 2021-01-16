@@ -22,7 +22,8 @@ case "$1" in
 		;;
 	MINIMAL)
 		;;
-	*) echo "Invalid logging level, must be one of: DEVEL, DEBUG, NORMAL or MINIMAL"
+	*) 
+		echo "ERROR: Invalid logging level, must be one of: DEVEL, DEBUG, NORMAL or MINIMAL" >&2
 		exit 1
 		;;
 esac

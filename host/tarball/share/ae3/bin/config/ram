@@ -19,5 +19,5 @@ if echo $1 | fgrep -qoE "\b([0-9]*?)(k|m|g)\b"; then
 	exit 0
 fi
 
-echo "Invalid memory allocation specification, use like: 512m, 768m, 2g..."
+echo "ERROR: Invalid memory allocation specification, use like: 512m, 768m, 2g..." >&2
 exit 1

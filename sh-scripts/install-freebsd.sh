@@ -14,7 +14,7 @@ echo 'AE3 BSD Installer started...'
 #
 # Check user
 #
-test `id -u` != 0 && echo 'ERROR: Must be root!' && exit 1
+test `id -u` != 0 && echo 'ERROR: Must be root!' >&2 && exit 1
 
 ######################################
 if [ -d "/usr/local/myx.distro/local-deploy-cache" ] ; then

@@ -7,7 +7,7 @@ set -e
 UserRequireRoot
 
 if [ ! -e "$AE3_STDIN" ]; then
-	echo "Cannot connect to daemon's console: Looks like daemon is not running!"
+	echo "ERROR: Cannot connect to daemon's console: Looks like daemon is not running!" >&2
 	exit 1
 fi
 

@@ -4,7 +4,7 @@
 
 Which(){
 	local COMMAND="$1"
-	[ -z "$COMMAND" ] && echo "Which: COMMAND argument is required!" && exit 1
+	[ -z "$COMMAND" ] && echo "ERROR: Which: COMMAND argument is required!" >&2 && exit 1
 	local CHECK="/usr/local/share/ae3/bin/$COMMAND"
 	[ -f "$CHECK" ] && echo "$CHECK" && return 0
 	return 1

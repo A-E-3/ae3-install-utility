@@ -25,7 +25,7 @@ if [ ! -x "/usr/local/share/ae3/bin/$COMMAND" ]; then
 	UserRequireOperator
 	
 	PrintDefault
-	>&2 echo "Unknown command: $COMMAND"
+	>&2 echo "ERROR: Unknown command: $COMMAND"
 	exit 1
 fi
 

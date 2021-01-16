@@ -18,7 +18,8 @@ case "$1" in
 		;;
 	DISABLE)
 		;;
-	*) echo "Invalid daemon mode, must be one of: ENABLE or DISABLE"
+	*) 
+		echo "ERROR: Invalid daemon mode, must be one of: ENABLE or DISABLE" >&2
 		exit 1
 		;;
 esac

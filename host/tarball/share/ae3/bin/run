@@ -4,7 +4,7 @@ set -e
 
 . ${0%/*}/../include/subr.sh
 
-test `id -u` != 0 || { echo "Not supposed to be run under 'root' user!"; exit 1; }
+test `id -u` != 0 || { echo "ERROR: Not supposed to be run under 'root' user!" >&2 ; exit 1; }
 
 UserRequireOperator
 

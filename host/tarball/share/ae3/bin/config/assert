@@ -22,7 +22,8 @@ case "$1" in
 		;;
 	ALL)
 		;;
-	*) echo "Invalid optimization goal, must be one of: NONE, NORMAL, MOST or ALL"
+	*) 
+		echo "ERROR: Invalid assertion mode, must be one of: NONE, NORMAL, MOST or ALL" >&2
 		exit 1
 		;;
 esac

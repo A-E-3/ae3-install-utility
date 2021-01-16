@@ -20,7 +20,8 @@ case "$1" in
 		;;
 	SPEED)
 		;;
-	*) echo "Invalid optimization goal, must be one of: DEFAULT, SIZE or SPEED"
+	*) 
+		echo "ERROR: Invalid optimization goal, must be one of: DEFAULT, SIZE or SPEED" >&2
 		exit 1
 		;;
 esac

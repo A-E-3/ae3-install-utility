@@ -9,7 +9,7 @@ UserRequireRoot
 USER=$1
 
 if [ ! $USER ]; then
-	echo 'Existing user name is expected'
+	echo 'ERROR: Existing user name is expected' >&2
 	exit 1
 fi
 

@@ -35,7 +35,7 @@ UserIsDaemon(){
 # Require operator
 #
 UserRequireOperator(){
-	UserIsRoot || UserIsOperator || { echo "Must be run by ae3 operator but current user is '`id -un`'"; exit 1; }
+	UserIsRoot || UserIsOperator || { echo "ERROR: Must be run by ae3 operator but current user is '`id -un`'" >&2 ; exit 1; }
 }
 
 
@@ -44,14 +44,14 @@ UserRequireOperator(){
 # Require daemon ('ae3' user')
 #
 UserRequireDaemon(){
-	UserIsDaemon || { echo "Must be run by ae3 daemon but current user is '`id -un`'"; exit 1; }
+	UserIsDaemon || { echo "ERROR: Must be run by ae3 daemon but current user is '`id -un`'" >&2 ; exit 1; }
 }
 
 
 
 GetAdminEmail(){
 	local FR="^root:"
-	grep -q -e "$FR" /etc/mail/aliases || { echo "no admin email specified, use: ae3 config/email your@email.address"; return 1; }
+	grep -q -e "$FR" /etc/mail/aliases || { echo "ERROR: no admin email specified, use: ae3 config/email your@email.address" >&2 ; return 1; }
 	local TEMP=`grep -e "$FR" /etc/mail/aliases`
 	echo "${TEMP#root: }"
 	return 0;
@@ -191,7 +191,7 @@ Fetch(){
 		wget --quiet -O "$FILE" "$URL" ; chmod 664 "$FILE" ; return 0
 	fi
 
-	echo "ERROR: curl, fetch or wget were not found, do not know how to download!"
+	echo "ERROR: curl, fetch or wget were not found, do not know how to download!" >&2
 	exit 1
 }
 

@@ -42,7 +42,7 @@ PKG_SRC="https://myx.ru/distro/ae3"
 
 wget --no-check-certificate -nv -N \
 	"$PKG_SRC/version" \
-	|| { echo "$0: Error getting version file"; exit 1; }
+	|| { echo "ERROR: $0: Error getting version file" >&2 ; exit 1; }
 
 [ "$1" = "reinstall" ] || checkVersion
 
@@ -51,7 +51,7 @@ wget --progress=bar --no-check-certificate -N \
 	"$PKG_SRC/ae3-classes.tbz" \
 	"$PKG_SRC/ae3-data.tbz" \
 	"$PKG_SRC/ae3-docs.tbz" \
-	|| { echo "$0: Error getting binary files"; exit 1; }
+	|| { echo "ERROR: $0: Error getting binary files" >&2 ; exit 1; }
 
 
 CONTENTS_DIFFER=false
