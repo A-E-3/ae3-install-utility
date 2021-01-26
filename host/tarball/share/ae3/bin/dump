@@ -6,7 +6,7 @@ set -e
 
 UserRequireOperator
 
-TEMP="$(mktemp -t ae3-dump)"
+TEMP="$(mktemp -t "ae3-dump-" )"
 
 tail -n 0 -F "$AE3_HOME/private/logs/stdout.log" > "$TEMP" &
 tail_pid=$!

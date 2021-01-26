@@ -15,7 +15,7 @@ AE3_DISTRO="$AE3_HOME/distro"
 # downloaded version (probably should be moved to protected)
 
 
-AE3_UPDATE="$(mktemp -d)"
+AE3_UPDATE="$( mktemp -t "ae3-update-" -d )"
 mount -t tmpfs tmpfs "$AE3_UPDATE"
 trap 'umount -f "$AE3_UPDATE" ; rm -fR "$AE3_UPDATE"' EXIT
 
