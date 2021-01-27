@@ -85,8 +85,8 @@ tar xvfj "$AE3_UPDATE/ae3-classes.tbz" -C "$AE3_UPDATE/ae3-unpack" 2> /dev/null
 tar xvfj "$AE3_UPDATE/ae3-data.tbz" -C "$AE3_UPDATE/ae3-public" 2> /dev/null 
 tar xvfj "$AE3_UPDATE/ae3-docs.tbz" -C "$AE3_UPDATE/ae3-public" 2> /dev/null 
 
-rsync -a --delete "$AE3_UPDATE/ae3-unpack/" "$AE3_UNPACK"
-rsync -a --delete "$AE3_UPDATE/ae3-public/" "$AE3_PUBLIC"
+rsync -a --delete "$AE3_UPDATE/ae3-unpack/" "$AE3_UNPACK" 2>&1 | grep -v --fixed-strings --line-buffered '>f..t....... ' >&2
+rsync -a --delete "$AE3_UPDATE/ae3-public/" "$AE3_PUBLIC" 2>&1 | grep -v --fixed-strings --line-buffered '>f..t....... ' >&2
 
 #TMPFS# rm -fR "$AE3_UPDATE"
 
