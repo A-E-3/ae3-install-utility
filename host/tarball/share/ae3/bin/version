@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+. ${0%/*}/../include/subr.sh
+
+UserRequireOperator
+
+
+# active distro (probably should be moved to public)
+AE3_DISTRO="$AE3_HOME/distro"
+
+# downloaded version (probably should be moved to protected)
+
+
+if [ -f "$AE3_DISTRO/version" ]
+	echo "$0: AE3 version: $( cat "$AE3_DISTRO/version" )"
+	exit 0
+fi
+
+echo "$0: AE3 version unavailable!"
+exit 1
