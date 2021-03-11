@@ -7,7 +7,7 @@ set -e
 
 UserRequireRoot
 
-echo "ae3 daily"
+echo "ae3 daily started..."
 
 FOLDER="$AE3_PRIVATE/import/ip_geography/"
 
@@ -31,3 +31,5 @@ Fetch https://ftp.ripe.net/ripe/stats/delegated-ripencc-latest 				delegated-rip
 wait
 
 rm delete.when.ready
+
+echo "ae3 daily finished."
