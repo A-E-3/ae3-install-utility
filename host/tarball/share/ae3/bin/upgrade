@@ -28,11 +28,14 @@ cp -pR "$AE3_DISTRO/" "$AE3_UPDATE"
 cd "$AE3_UPDATE"
 
 checkVersion(){
-	local	VER_DISTRO="`[ -f "$AE3_DISTRO/version" ] && cat "$AE3_DISTRO/version" || echo 0`" \
-			VER_UPDATE="`cat "$AE3_UPDATE/version"`" \
-	;
-			
-	[ "$VER_DISTRO" = "$VER_UPDATE" ] && { echo "$0: Nothing to update."; exit 0; }
+	local VER_DISTRO="`[ -f "$AE3_DISTRO/version" ] && cat "$AE3_DISTRO/version" || echo 0`"
+	local VER_UPDATE="`cat "$AE3_UPDATE/version"`"
+
+	if [ "$VER_DISTRO" = "$VER_UPDATE" ] ; then
+		echo "$0: Nothing to update."
+		exit 1
+	fi
+
 	echo "$0: Version changed: $VER_DISTRO -> $VER_UPDATE"
 }
 
