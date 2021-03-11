@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../include/subr.sh
+
+UserRequireRoot
+
+ae3 upgrade
