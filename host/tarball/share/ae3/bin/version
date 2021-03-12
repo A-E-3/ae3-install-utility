@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-set -x
 
 . ${0%/*}/../include/subr.sh
 
@@ -14,7 +13,7 @@ AE3_DISTRO="$AE3_HOME/distro"
 # downloaded version (probably should be moved to protected)
 
 
-if [ -f "$AE3_DISTRO/version" ]
+if [ -f "$AE3_DISTRO/version" ] ; then
 	echo "$0: AE3 version: $( cat "$AE3_DISTRO/version" )"
 	exit 0
 fi
