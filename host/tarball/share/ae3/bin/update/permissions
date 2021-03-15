@@ -39,10 +39,14 @@ chmod 770 "$AE3_DIR"
 
 mkdir -p "$AE3_DIR/shared" "$AE3_DIR/private"
 
-chown -R root:ae3 "$AE3_DIR/shared"
-chmod -R 770 "$AE3_DIR/shared"
-
-chown -R root:ae3 "$AE3_DIR/private"
-chmod -R 770 "$AE3_DIR/private"
+if [ -z "$( which rsync )" ] ; then
+    chown -R root:ae3 "$AE3_DIR/shared"
+    chmod -R 770 "$AE3_DIR/shared"
+    chown -R root:ae3 "$AE3_DIR/private"
+    chmod -R 770 "$AE3_DIR/private"
+else
+    rsync -ap --chown root:ae3 --chmod F770 "$AE3_DIR/shared/" "$AE3_DIR/shared/"
+    rsync -ap --chown root:ae3 --chmod F770 "$AE3_DIR/private/" "$AE3_DIR/private/"
+fi
 
 ######################################
