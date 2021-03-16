@@ -2,7 +2,7 @@
 
 set -e
 
-. ${0%/*}/../include/subr.sh
+. ${0%/*}/../../include/subr.sh
 
 UserRequireRoot
 
