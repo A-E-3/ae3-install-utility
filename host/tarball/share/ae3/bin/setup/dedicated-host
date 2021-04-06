@@ -46,7 +46,7 @@ ReplaceLine /boot/loader.conf '^autoboot_delay=*' 'autoboot_delay="2"'
 
 sysrc firewall_enable=YES
 sysrc firewall_script=/usr/local/etc/ipfw.sh
-sysrc firewall_type=OPEN
+sysrc firewall_type="open"
 
 sed -e 's/^[ \t]*//' > /usr/local/etc/ipfw.sh <<- 'EOF'
 	#!/bin/sh
