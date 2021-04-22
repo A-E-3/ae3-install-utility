@@ -8,8 +8,8 @@
 
 . /etc/rc.subr
 
-name=ae3d
-rcvar=ae3d_enable
+name="ae3d"
+rcvar="ae3d_enable"
 
 load_rc_config $name
 
