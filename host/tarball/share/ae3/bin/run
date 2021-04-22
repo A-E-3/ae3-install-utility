@@ -115,7 +115,7 @@ if IsDaemonTask; then
 
 	mkdir -p "`dirname "$AE3_STDIN"`"
 	RemoveIn
-	trap 'pids=$(pgrep -P $PID); kill -TERM $pids 2> /dev/null && wait $pids 2> /dev/null; [ -e "$AE3_STDIN" ] && { printf "\x1a\x3" >> "$AE3_STDIN"; RemoveIn; }' EXIT
+	trap 'pids=$(pgrep -P $PID); pkill -TERM -P $PID 2> /dev/null && wait $pids 2> /dev/null; [ -e "$AE3_STDIN" ] && { printf "\x1a\x3" >> "$AE3_STDIN"; RemoveIn; }' EXIT
 
 fi
 
