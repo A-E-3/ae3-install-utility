@@ -30,10 +30,10 @@ bash_command="`which bash`"
 export HOME=`pw usershow "$ae3d_user" | cut -f9 -d:`
 
 # for rc subr
-procname="$bash_command"
+# procname="$bash_command"
 
 command="/usr/sbin/daemon"
-command_args="-f -S -p $pidfile $bash_command $ae3d_command --start server"
+command_args="-f -S -P $pidfile -- $bash_command $ae3d_command --start server"
 
 required_files="$ae3d_command $bash_command"
 

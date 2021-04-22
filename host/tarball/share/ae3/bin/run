@@ -99,8 +99,9 @@ function mkPrev(){
 }
 
 PID=$$
+PGID=$(ps -o pgid= $PID)
 
-trap 'pkill -TERM -P $PID 2> /dev/null' EXIT
+trap 'pkill -TERM -g $PGID 2> /dev/null' EXIT
 
 IsDaemonTask(){
 	return $(UserIsDaemon && [ "$MORE_ARGS" = "shell --start server" -o "$MORE_ARGS" = "--start server" ]);
@@ -115,7 +116,7 @@ if IsDaemonTask; then
 
 	mkdir -p "`dirname "$AE3_STDIN"`"
 	RemoveIn
-	trap 'pids=$(pgrep -P $PID); pkill -TERM -P $PID 2> /dev/null && wait $pids 2> /dev/null; [ -e "$AE3_STDIN" ] && { printf "\x1a\x3" >> "$AE3_STDIN"; RemoveIn; }' EXIT
+	trap 'pids=$(pgrep -g $PGID); kill -TERM -"$PGID" 2> /dev/null && wait $pids 2> /dev/null; [ -e "$AE3_STDIN" ] && { printf "\x1a\x3" >> "$AE3_STDIN"; RemoveIn; }' EXIT
 
 fi
 
