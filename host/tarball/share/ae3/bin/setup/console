@@ -9,10 +9,10 @@ myx.common setup/console
 type ReplaceLine >/dev/null 2>&1 || \
 	. "/usr/local/share/myx.common/bin/lib/replaceLine"
 
-oldScriptName="$HOME/.ae3/etc/bashrc"
+oldScriptName="${HOME}.ae3/etc/bashrc"
 [ ! -f "$oldScriptName" ] || rm "$oldScriptName"
-ReplaceLine "$HOME/.bashrc" "source $oldScriptName" ""
-ReplaceLine "$HOME/.bashrc" ". $oldScriptName" ""
+ReplaceLine "${HOME}.bashrc" "source $oldScriptName" ""
+ReplaceLine "${HOME}.bashrc" ". $oldScriptName" ""
 
 #### end of temp
 
