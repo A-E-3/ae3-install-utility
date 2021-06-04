@@ -36,6 +36,7 @@ buildCommand(){
 	DAEMON_ENABLE="${ae3d_daemon:-"ENABLE"}"
 
 	local	ae3_assert="$(assert`GetAssertionsMode`)" \
+			ae3_javaopts="${ae3d_javaopts:-""}" \
 			ae3_logging="${ae3d_logging:-"NORMAL"}" \
 			ae3_mode="${ae3d_mode:-"live"}" \
 			ae3_optimize="${ae3d_optimize:-"DEFAULT"}" \
