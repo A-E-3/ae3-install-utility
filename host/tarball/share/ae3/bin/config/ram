@@ -13,7 +13,7 @@ if [ -z "$@" ]; then
 	exit 0
 fi
 
-if echo $1 | fgrep -qoE "\b([0-9]*?)(k|m|g)\b"; then
+if echo $1 | grep -qoE "\b([0-9]+)(k|m|g)\b"; then
 	ae3d_ram="$1"
 	StoreDaemonSettings
 	exit 0
