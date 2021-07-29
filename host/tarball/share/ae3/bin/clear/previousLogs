@@ -11,7 +11,7 @@ echo "Cleaning previous logs"
 
 STDOUT_PREV="$AE3_PRIVATE/logs/stdout.log.prev"
 if [ -f "$STDOUT_PREV" ] ; then
-	echo "removing: $(ls -al "$STDOUT_PREV")"
+	echo "removing: $(ls -ahl "$STDOUT_PREV")"
 	rm -f "$STDOUT_PREV" && echo "removed: $STDOUT_PREV"
 fi
 
