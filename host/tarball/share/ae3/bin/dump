@@ -6,14 +6,14 @@ set -e
 
 UserRequireOperator
 
-TEMP="$(mktemp -t "ae3-dump-" )"
+DUMP_FILE="$(mktemp -t "ae3-dump" )"
 
-tail -n 0 -F "$AE3_HOME/private/logs/stdout.log" > "$TEMP" &
-tail_pid=$!
+tail -n 0 -F "$AE3_HOME/private/logs/stdout.log" > "$DUMP_FILE" &
+TAIL_PID=$!
 
 kill -QUIT `/usr/local/etc/rc.d/ae3d jpid`
 
 sleep 1
 
-kill -9 $tail_pid
-cat $TEMP | less
+kill -9 $TAIL_PID
+less "$DUMP_FILE"
