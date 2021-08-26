@@ -11,7 +11,12 @@ DUMP_FILE="$(mktemp -t "ae3-dump" )"
 tail -n 0 -F "$AE3_HOME/private/logs/stdout.log" > "$DUMP_FILE" &
 TAIL_PID=$!
 
-kill -QUIT `/usr/local/etc/rc.d/ae3d jpid`
+if ! kill -QUIT `/usr/local/etc/rc.d/ae3d jpid` ; then
+	kill -9 $TAIL_PID
+	rm "$DUMP_FILE"
+	echo "ERROR: Failed to send QUIT signal to Java, check if daemon is running." >&2
+	exit 1
+fi
 
 sleep 1
 
