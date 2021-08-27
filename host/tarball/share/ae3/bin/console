@@ -20,10 +20,13 @@ echo "CONSOLE: 'exit' command will stop the service, use CTRL+C to exit the cons
 echo "CONSOLE: Press ENTER to start"
 echo ""
 
-tail -F -n 0 "$AE3_STDERR_LOG" &
+tail -F -n 0 "$AE3_STDERR_LOG" < /dev/null &
 
 trap 'exec 2>/dev/null; kill -TERM $(pgrep -P $$) > /dev/null 2>&1 || true; echo; [ -e "$AE3_STDIN" ] && printf "\x1a\x3" >> "$AE3_STDIN" || true; exit 0;' SIGINT
 trap 'exec 2>/dev/null; kill -TERM $(pgrep -P $$) > /dev/null 2>&1 || true' EXIT
+
+sleep 1
+printf "\x1a\x3" >> "$AE3_STDIN"
 
 while read -r LINE ; do
 	if [ ! -e "$AE3_STDIN" ]; then
@@ -33,4 +36,5 @@ while read -r LINE ; do
 	echo "$LINE" >> "$AE3_STDIN"
 done
 
+sleep 1
 echo "NOTICE: Console session is finished." >&2
