@@ -7,7 +7,12 @@ set -e
 UserRequireRoot
 
 if [ ! -e "$AE3_STDIN" ]; then
-	echo "ERROR: Cannot connect to daemon's console: Looks like daemon is not running!" >&2
+	echo "ERROR: Cannot connect to daemon's console input: Looks like daemon is not running!" >&2
+	exit 1
+fi
+
+if [ ! -e "$AE3_STDERR_LOG" ]; then
+	echo "ERROR: Cannot connect to daemon's console output: Looks like daemon is not running!" >&2
 	exit 1
 fi
 
@@ -27,3 +32,5 @@ while read -r LINE ; do
 	fi
 	echo "$LINE" >> "$AE3_STDIN"
 done
+
+echo "NOTICE: Console session is finished." >&2
