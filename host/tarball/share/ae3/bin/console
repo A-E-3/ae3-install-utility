@@ -20,8 +20,10 @@ tail -F -n 0 "$AE3_STDERR_LOG" &
 trap 'exec 2>/dev/null; kill -TERM $(pgrep -P $$) > /dev/null 2>&1 || true; echo; [ -e "$AE3_STDIN" ] && printf "\x1a\x3" >> "$AE3_STDIN" || true; exit 0;' SIGINT
 trap 'exec 2>/dev/null; kill -TERM $(pgrep -P $$) > /dev/null 2>&1 || true' EXIT
 
-while [ -e "$AE3_STDIN" ]; do
-	read -r LINE || break
-	[ -e "$AE3_STDIN" ] && echo "$LINE" >> "$AE3_STDIN"
+while read -r LINE ; do
+	if [ ! -e "$AE3_STDIN" ]; then
+		echo "WARNING: Daemon's console is disconnected!" >&2
+		exit 1
+	fi
+	echo "$LINE" >> "$AE3_STDIN"
 done
-
