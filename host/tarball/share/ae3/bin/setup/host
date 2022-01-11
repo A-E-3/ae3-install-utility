@@ -7,7 +7,7 @@ set -e
 UserRequireRoot
 
 # extra software
-pkg install -y 'wget' 'rsync' 'openjdk13'
+pkg install -y 'wget' 'rsync' 'openjdk17'
 
 ################################################################################
 #
