@@ -1,5 +1,6 @@
 Name: ae3-install-utility
-Provides: ae3/ae3-install-utility \
+Provides: \
+	ae3/ae3-install-utility \
 	source-prepare:increment:build.number \
 	source-process:host-tarball.tbz \
 	source-process:project-source.tgz \
