@@ -79,7 +79,7 @@ mkdir "$AE3_UPDATE/ae3-public"
 
 tar xvfj "$AE3_UPDATE/ae3-axiom.tbz" -C "$AE3_UPDATE/ae3-axiom" 2> /dev/null
 
-for NAME in `ls "$AE3_UPDATE/ae3-axiom"`; do
+for NAME in `ls -b "$AE3_UPDATE/ae3-axiom/"`; do
 	unzip -q -n -d "$AE3_UPDATE/ae3-unpack" -x "META-INF/*" "$AE3_UPDATE/ae3-axiom/$NAME" > /dev/null
 done
 
