@@ -16,25 +16,68 @@ if [ ! -e "$AE3_STDERR_LOG" ]; then
 	exit 1
 fi
 
-echo "CONSOLE: 'exit' command will stop the service, use CTRL+C to exit the console."
-echo "CONSOLE: Press ENTER to start"
-echo ""
+NONCERND=""
+if [ "$1" == "--wait" ]; then
+	NONCERND="$( head -c 18 /dev/urandom | ( base64 2> /dev/null || openssl base64 ) | tr '+' 'h' | tr '/' 'p' )"
+	shift # remove "--wait"
+	echo "CONSOLE: non-interactive session started."
+else
+	echo "CONSOLE: 'exit' command will stop the service, use CTRL+C to exit the console."
+	echo "CONSOLE: Press ENTER to start"
+	echo ""
+fi
 
-tail -F -n 0 "$AE3_STDERR_LOG" < /dev/null &
+if [ -z "$NONCERND" ]; then
+	tail -n 0 -F "$AE3_STDERR_LOG" < /dev/null &
+else
+	tailMatcherFn(){
+		tail -n 0 -F "$AE3_STDERR_LOG" < /dev/null | { 
+			sed -u "/==done:$NONCERND/q" && \
+			kill $$ 
+			echo "NOTICE: Read closed." >&2
+		}
+	}
+	tailMatcherFn < /dev/null &
+fi
 
-trap 'exec 2>/dev/null; kill -TERM $(pgrep -P $$) > /dev/null 2>&1 || true; echo; [ -e "$AE3_STDIN" ] && printf "\x1a\x3" >> "$AE3_STDIN" || true; exit 0;' SIGINT
-trap 'exec 2>/dev/null; kill -TERM $(pgrep -P $$) > /dev/null 2>&1 || true' EXIT
+TAIL_PID="$!"
 
-sleep 1
+# CTRL+C
+trap "kill -TERM $(pgrep -P $TAIL_PID | xargs echo) $TAIL_PID > /dev/null 2>&1 || true; [ -e '$AE3_STDIN' ] && printf '\x1a\x3' >> '$AE3_STDIN' && echo || true; exit 0;" SIGINT
+# All exits
+trap "kill -TERM $(pgrep -P $TAIL_PID | xargs echo) $TAIL_PID > /dev/null 2>&1 || true" EXIT
+
 printf "\x1a\x3" >> "$AE3_STDIN"
+
+if [ -z "$NONCERND" ]; then
+	printf " \n" >> "$AE3_STDIN"
+else
+	printf " \necho '==bint:$NONCERND'\n" >> "$AE3_STDIN"
+fi
 
 while read -r LINE ; do
 	if [ ! -e "$AE3_STDIN" ]; then
 		echo "WARNING: Daemon's console is disconnected!" >&2
 		exit 1
 	fi
-	echo "$LINE" >> "$AE3_STDIN"
+	printf "%s\n" "$LINE" >> "$AE3_STDIN"
 done
 
-sleep 1
-echo "NOTICE: Console session is finished." >&2
+if [ -z "$NONCERND" ]; then
+	echo "NOTICE: Console session is finished." >&2
+	exit 0
+fi
+
+while true ; do
+	if ! kill -s 0 $TAIL_PID > /dev/null 2>&1 ; then
+		echo "NOTICE: Console session is finished." >&2
+		exit 0 # << need checked of timeout
+	fi
+	if [ ! -e "$AE3_STDIN" ]; then
+		echo "WARNING: Daemon's console is disconnected!" >&2
+		exit 1
+	fi
+	printf " \necho '==done:$NONCERND'\n" >> "$AE3_STDIN"
+	# wait $! ; exit 0 # both: on success and error - exit here
+	sleep 1
+done
