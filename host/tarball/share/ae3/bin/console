@@ -32,8 +32,9 @@ if [ -z "$NONCERND" ]; then
 else
 	tailMatcherFn(){
 		tail -n 0 -F "$AE3_STDERR_LOG" < /dev/null | { 
-			sed -u "/==done:$NONCERND/q" && \
-			kill $$ 
+			if sed -u "/==done:$NONCERND/q" ; then
+				kill $$ 
+			fi
 			echo "NOTICE: Read closed." >&2
 		}
 	}
@@ -71,13 +72,12 @@ fi
 while true ; do
 	if ! kill -s 0 $TAIL_PID > /dev/null 2>&1 ; then
 		echo "NOTICE: Console session is finished." >&2
-		exit 0 # << need checked of timeout
+		exit 0
 	fi
 	if [ ! -e "$AE3_STDIN" ]; then
 		echo "WARNING: Daemon's console is disconnected!" >&2
 		exit 1
 	fi
 	printf " \necho '==done:$NONCERND'\n" >> "$AE3_STDIN"
-	# wait $! ; exit 0 # both: on success and error - exit here
 	sleep 1
 done
