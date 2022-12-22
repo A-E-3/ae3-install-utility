@@ -37,7 +37,7 @@ else
 				return 0
 				# kill -TERM $$ 
 			fi | fgrep --line-buffered -v ":$NONCERND"
-			echo "NOTICE: Read closed." >&2
+			# echo "NOTICE: Read closed." >&2
 		}
 		return 0
 	}
@@ -74,7 +74,7 @@ fi
 
 while true ; do
 	if ! kill -s 0 $TAIL_PID > /dev/null 2>&1 ; then
-		# echo "NOTICE: Console non-interactive session is finished." >&2
+		echo "NOTICE: Console non-interactive session is finished." >&2
 		exit 0
 	fi
 	if [ ! -e "$AE3_STDIN" ]; then
