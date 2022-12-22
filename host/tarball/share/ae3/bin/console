@@ -33,7 +33,8 @@ else
 	tailMatcherFn(){
 		tail -n 0 -F "$AE3_STDERR_LOG" < /dev/null | { 
 			if sed -u "/==done:$NONCERND/q" ; then
-				kill -TERM $$ 
+				return 0
+				# kill -TERM $$ 
 			fi | fgrep --line-buffered -v ":$NONCERND"
 			echo "NOTICE: Read closed." >&2
 		}
