@@ -20,7 +20,7 @@ NONCERND=""
 if [ "$1" == "--wait" ]; then
 	NONCERND="$( head -c 18 /dev/urandom | ( base64 2> /dev/null || openssl base64 ) | tr '+' 'h' | tr '/' 'p' )"
 	shift # remove "--wait"
-	echo "CONSOLE: non-interactive session started."
+	# echo "CONSOLE: non-interactive session starting."
 else
 	echo "CONSOLE: 'exit' command will stop the service, use CTRL+C to exit the console."
 	echo "CONSOLE: Press ENTER to start"
@@ -32,6 +32,7 @@ if [ -z "$NONCERND" ]; then
 else
 	tailMatcherFn(){
 		tail -n 0 -F "$AE3_STDERR_LOG" < /dev/null | { 
+			echo "CONSOLE: non-interactive session started." >&2
 			if sed -u "/==done:$NONCERND/q" ; then
 				return 0
 				# kill -TERM $$ 
@@ -73,7 +74,7 @@ fi
 
 while true ; do
 	if ! kill -s 0 $TAIL_PID > /dev/null 2>&1 ; then
-		echo "NOTICE: Console session is finished." >&2
+		# echo "NOTICE: Console non-interactive session is finished." >&2
 		exit 0
 	fi
 	if [ ! -e "$AE3_STDIN" ]; then
