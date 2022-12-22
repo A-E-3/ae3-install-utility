@@ -34,9 +34,10 @@ else
 		tail -n 0 -F "$AE3_STDERR_LOG" < /dev/null | { 
 			if sed -u "/==done:$NONCERND/q" ; then
 				kill -TERM $$ 
-			fi | fgrep -v ":$NONCERND"
+			fi | fgrep --line-buffered -v ":$NONCERND"
 			echo "NOTICE: Read closed." >&2
 		}
+		return 0
 	}
 	tailMatcherFn < /dev/null &
 fi
