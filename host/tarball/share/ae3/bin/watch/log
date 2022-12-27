@@ -6,4 +6,8 @@ set -e
 
 UserRequireOperator
 
-tail -n 0 -F "$AE3_STDOUT_LOG" -n 0 -F "$AE3_STDERR_LOG"
+if [ "$1" = "--all" ] ; then
+	exec tail -n 0 -F "$AE3_STDOUT_LOG" -n 0 -F "$AE3_STDERR_LOG"
+else
+	exec tail -n 0 -F "$AE3_STDOUT_LOG"
+fi

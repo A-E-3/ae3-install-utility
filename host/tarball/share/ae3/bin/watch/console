@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireOperator
+
+exec tail -n 0 -F "$AE3_STDERR_LOG"
