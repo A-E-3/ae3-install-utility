@@ -9,6 +9,8 @@ UserRequireRoot
 
 echo "ae3 daily started..."
 
+# update ip-geography
+
 FOLDER="$AE3_PRIVATE/import/ip_geography/"
 
 mkdir -p "$FOLDER"
@@ -31,5 +33,10 @@ Fetch https://ftp.ripe.net/ripe/stats/delegated-ripencc-latest 				delegated-rip
 wait
 
 rm delete.when.ready
+
+# truncate logs
+
+# ae3 truncate/logs --min-size=1G --save-copy
+# truncate -c -s 0 /usr/local/ae3/private/logs/stdout.log
 
 echo "ae3 daily finished."
