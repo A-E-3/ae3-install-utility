@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireOperator
+
+echo "  ae3-logs:   `du -hs $AE3_PRIVATE/logs/`"
