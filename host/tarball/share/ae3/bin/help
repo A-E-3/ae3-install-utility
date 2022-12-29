@@ -5,6 +5,13 @@ set -e
 . ${0%/*}/../include/subr.sh
 
 
+if [ "$1" != "" ] ; then
+	if [ ! -x "${AE3_BIN}/$1" ] ; then
+		echo "Invalid option: $1" >&2
+		exit 1
+	fi
+	exec "${AE3_BIN}/$1" --help
+fi
 
 echo "AE3 Script commands:"
 
