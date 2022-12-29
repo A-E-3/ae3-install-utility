@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+. ${0%/*}/../../include/subr.sh
+
+UserRequireOperator
+
+ls -lth "$AE3_PRIVATE/logs/*"
