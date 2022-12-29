@@ -6,4 +6,4 @@ set -e
 
 UserRequireOperator
 
-ls -lth "$AE3_PRIVATE/logs/*"
+ls -ltdh `find "$AE3_PRIVATE/logs" -type f` "$AE3_PRIVATE/logs"
