@@ -54,9 +54,9 @@ trap "kill -TERM $(pgrep -P $TAIL_PID | xargs echo) $TAIL_PID > /dev/null 2>&1 |
 printf "\x1a\x3" >> "$AE3_STDIN"
 
 if [ -z "$NONCERND" ]; then
-	printf " \n" >> "$AE3_STDIN"
+	printf " \r\n\r\n" >> "$AE3_STDIN"
 else
-	printf " \necho '==bint:$NONCERND'\n" >> "$AE3_STDIN"
+	printf " \r\n\r\necho '==bint:$NONCERND'\r\n" >> "$AE3_STDIN"
 fi
 
 while read -r LINE ; do
@@ -64,7 +64,7 @@ while read -r LINE ; do
 		echo "WARNING: Daemon's console is disconnected!" >&2
 		exit 1
 	fi
-	printf "%s\n" "$LINE" >> "$AE3_STDIN"
+	printf "%s\r\n" "$LINE" >> "$AE3_STDIN"
 done
 
 if [ -z "$NONCERND" ]; then
@@ -81,6 +81,6 @@ while true ; do
 		echo "WARNING: Daemon's console is disconnected!" >&2
 		exit 1
 	fi
-	printf " \necho '==done:$NONCERND'\n" >> "$AE3_STDIN"
-	sleep 1
+	printf " \r\n\r\necho '==done:$NONCERND'\r\n" >> "$AE3_STDIN"
+	sleep 3
 done
