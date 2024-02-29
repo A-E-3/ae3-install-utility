@@ -6,7 +6,7 @@ set -e
 
 UserRequireOperator
 
-DUMP_FILE="$(mktemp -t "ae3-dump" )"
+DUMP_FILE="$(mktemp -t "ae3-dump-XXXXXXXX" )"
 
 tail -n 0 -F "$AE3_HOME/private/logs/stdout.log" > "$DUMP_FILE" &
 TAIL_PID=$!
