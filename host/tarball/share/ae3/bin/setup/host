@@ -7,7 +7,7 @@ set -e
 UserRequireRoot
 
 # extra software
-pkg install -y 'wget' 'rsync' 'openjdk21'
+pkg install -y 'wget' 'rsync' 'openjdk22'
 
 ################################################################################
 #
