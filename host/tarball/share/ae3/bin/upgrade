@@ -7,93 +7,126 @@ set -x
 
 UserRequireRoot
 
-echo "$0: Checking for latest AE3..."
+Ae3Upgrade(){
+	set -e
+	local forceReinstall
+	local thenRestart
+	while true ; do
+		case "$1" in
+			reinstall|--reinstall)
+				forceReinstall=true
+				shift
+			;;
+			--restart)
+				thenRestart=true
+				shift
+			;;
+			'')
+				break
+			;;
+			*)
+				echo "$0: invalid option: $@" >&2
+				return 1
+			;;
+		esac
+	done
 
-# active distro (probably should be moved to public)
-AE3_DISTRO="$AE3_HOME/distro"
+	echo "$0: Checking for latest AE3..."
 
-# downloaded version (probably should be moved to protected)
+	# active distro (probably should be moved to public)
+	AE3_DISTRO="$AE3_HOME/distro"
+
+	# downloaded version (probably should be moved to protected)
 
 
-AE3_UPDATE="$( mktemp -t "ae3-update-XXXXXXXX" -d )"
-mount -t tmpfs tmpfs "$AE3_UPDATE"
-trap 'umount -f "$AE3_UPDATE" ; rm -fR "$AE3_UPDATE"' EXIT
+	AE3_UPDATE="$( mktemp -t "ae3-update-XXXXXXXX" -d )"
+	mount -t tmpfs tmpfs "$AE3_UPDATE"
+	trap 'umount -f "$AE3_UPDATE" ; rm -fR "$AE3_UPDATE"' EXIT
 
-#TMPFS# rm -fR "$AE3_UPDATE"
-#TMPFS# mkdir -p "$AE3_UPDATE"
+	#TMPFS# rm -fR "$AE3_UPDATE"
+	#TMPFS# mkdir -p "$AE3_UPDATE"
 
-mkdir -p "$AE3_DISTRO" "$AE3_UNPACK" "$AE3_PUBLIC"
+	mkdir -p "$AE3_DISTRO" "$AE3_UNPACK" "$AE3_PUBLIC"
 
-cp -pR "$AE3_DISTRO/" "$AE3_UPDATE"
-cd "$AE3_UPDATE"
+	cp -pR "$AE3_DISTRO/" "$AE3_UPDATE"
+	cd "$AE3_UPDATE"
 
-checkVersion(){
-	local VER_DISTRO="`[ -f "$AE3_DISTRO/version" ] && cat "$AE3_DISTRO/version" || echo 0`"
-	local VER_UPDATE="`cat "$AE3_UPDATE/version"`"
 
-	if [ "$VER_DISTRO" = "$VER_UPDATE" ] ; then
-		echo "$0: Nothing to update."
-		exit 1
+	PKG_SRC="https://myx.co.nz/distro/ae3"
+
+	wget -nv -N \
+		"$PKG_SRC/version" \
+		|| { echo "ERROR: $0: Error getting version file" >&2 ; exit 1; }
+
+	if [ -z "$forceReinstall" ] ; then
+		local VER_DISTRO="`[ -f "$AE3_DISTRO/version" ] && cat "$AE3_DISTRO/version" || echo 0`"
+		local VER_UPDATE="`cat "$AE3_UPDATE/version"`"
+
+		if [ "$VER_DISTRO" = "$VER_UPDATE" ] ; then
+			echo "$0: Nothing to update."
+			return 1
+		fi
+
+		echo "$0: Version changed: $VER_DISTRO -> $VER_UPDATE"
 	fi
 
-	echo "$0: Version changed: $VER_DISTRO -> $VER_UPDATE"
+	wget --progress=bar -N \
+		"$PKG_SRC/ae3-axiom.tbz" \
+		"$PKG_SRC/ae3-classes.tbz" \
+		"$PKG_SRC/ae3-data.tbz" \
+		"$PKG_SRC/ae3-docs.tbz" \
+		|| { echo "ERROR: $0: Error getting binary files" >&2 ; return 1; }
+
+
+	CONTENTS_DIFFER=false
+
+	for NAME in 'ae3-axiom.tbz' 'ae3-classes.tbz' 'ae3-data.tbz' 'ae3-docs.tbz'; do
+		cmp -s "$AE3_DISTRO/$NAME" "$AE3_UPDATE/$NAME" || { CONTENTS_DIFFER=true; break; }
+	done
+
+	if [ "$CONTENTS_DIFFER" = "false" ] && [ -z "$forceReinstall" ] ; then
+		echo "$0: Binaries are still the same"; 
+		return 1;
+	fi
+
+	echo "unixtime: $(date +%s)"
+
+	# ------------------------------------------------------------------------------
+	# extract / replace
+	#
+
+	cp -pR "$AE3_UPDATE/" "$AE3_DISTRO"
+
+	mkdir "$AE3_UPDATE/ae3-axiom"
+	mkdir "$AE3_UPDATE/ae3-unpack"
+	mkdir "$AE3_UPDATE/ae3-public"
+
+	tar xvfj "$AE3_UPDATE/ae3-axiom.tbz" -C "$AE3_UPDATE/ae3-axiom" 2> /dev/null
+
+	for NAME in `ls -b "$AE3_UPDATE/ae3-axiom/"`; do
+		unzip -q -n -d "$AE3_UPDATE/ae3-unpack" -x "META-INF/*" "$AE3_UPDATE/ae3-axiom/$NAME" > /dev/null
+	done
+
+	tar xvfj "$AE3_UPDATE/ae3-classes.tbz" -C "$AE3_UPDATE/ae3-unpack" 2> /dev/null 
+
+	tar xvfj "$AE3_UPDATE/ae3-data.tbz" -C "$AE3_UPDATE/ae3-public" 2> /dev/null 
+	tar xvfj "$AE3_UPDATE/ae3-docs.tbz" -C "$AE3_UPDATE/ae3-public" 2> /dev/null 
+
+	rsync -ai --delete "$AE3_UPDATE/ae3-unpack/" "$AE3_UNPACK" 2>&1 \
+	| (grep -v --line-buffered -E '>f\.\.t\.+ ' >&2 || true)
+
+	rsync -ai --delete "$AE3_UPDATE/ae3-public/" "$AE3_PUBLIC" 2>&1 \
+	| (grep -v --line-buffered -E '>f\.\.t\.+ ' >&2 || true)
+
+	#TMPFS# rm -fR "$AE3_UPDATE"
+
+	echo "unixtime: $(date +%s)"
+
+	if [ ! -z "$thenRestart" ] ; then
+		/usr/local/share/ae3/bin/restart
+	fi
+	return 0;
 }
 
 
-
-PKG_SRC="https://myx.ru/distro/ae3"
-
-wget --no-check-certificate -nv -N \
-	"$PKG_SRC/version" \
-	|| { echo "ERROR: $0: Error getting version file" >&2 ; exit 1; }
-
-[ "$1" = "reinstall" ] || checkVersion
-
-wget --progress=bar --no-check-certificate -N \
-	"$PKG_SRC/ae3-axiom.tbz" \
-	"$PKG_SRC/ae3-classes.tbz" \
-	"$PKG_SRC/ae3-data.tbz" \
-	"$PKG_SRC/ae3-docs.tbz" \
-	|| { echo "ERROR: $0: Error getting binary files" >&2 ; exit 1; }
-
-
-CONTENTS_DIFFER=false
-
-for NAME in 'ae3-axiom.tbz' 'ae3-classes.tbz' 'ae3-data.tbz' 'ae3-docs.tbz'; do
-	cmp -s "$AE3_DISTRO/$NAME" "$AE3_UPDATE/$NAME" || { CONTENTS_DIFFER=true; break; }
-done
-
-$CONTENTS_DIFFER || [ "$1" = "reinstall" ] || { echo "$0: But binaries are still the same"; exit 0; }
-
-echo "unixtime: $(date +%s)"
-
-# ------------------------------------------------------------------------------
-# extract / replace
-#
-
-cp -pR "$AE3_UPDATE/" "$AE3_DISTRO"
-
-mkdir "$AE3_UPDATE/ae3-axiom"
-mkdir "$AE3_UPDATE/ae3-unpack"
-mkdir "$AE3_UPDATE/ae3-public"
-
-tar xvfj "$AE3_UPDATE/ae3-axiom.tbz" -C "$AE3_UPDATE/ae3-axiom" 2> /dev/null
-
-for NAME in `ls -b "$AE3_UPDATE/ae3-axiom/"`; do
-	unzip -q -n -d "$AE3_UPDATE/ae3-unpack" -x "META-INF/*" "$AE3_UPDATE/ae3-axiom/$NAME" > /dev/null
-done
-
-tar xvfj "$AE3_UPDATE/ae3-classes.tbz" -C "$AE3_UPDATE/ae3-unpack" 2> /dev/null 
-
-tar xvfj "$AE3_UPDATE/ae3-data.tbz" -C "$AE3_UPDATE/ae3-public" 2> /dev/null 
-tar xvfj "$AE3_UPDATE/ae3-docs.tbz" -C "$AE3_UPDATE/ae3-public" 2> /dev/null 
-
-rsync -ai --delete "$AE3_UPDATE/ae3-unpack/" "$AE3_UNPACK" 2>&1 \
-| (grep -v --line-buffered -E '>f\.\.t\.+ ' >&2 || true)
-
-rsync -ai --delete "$AE3_UPDATE/ae3-public/" "$AE3_PUBLIC" 2>&1 \
-| (grep -v --line-buffered -E '>f\.\.t\.+ ' >&2 || true)
-
-#TMPFS# rm -fR "$AE3_UPDATE"
-
-echo "unixtime: $(date +%s)"
+Ae3Upgrade "$@"
