@@ -7,7 +7,7 @@ set -e
 UserRequireRoot
 
 # extra software
-pkg install -y 'wget' 'rsync' 'openjdk22'
+pkg install -y 'wget' 'rsync' 'openjdk23'
 
 ################################################################################
 #
@@ -195,7 +195,7 @@ mount -a
 #
 #
 
-"$AE3_BIN/upgrade"
+"$AE3_BIN/upgrade" "$@"
 
 install -d -g ae3 -o ae3 "$AE3_HOME/private"
 install -d -g ae3 -o ae3 "$AE3_HOME/shared"
