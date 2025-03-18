@@ -33,4 +33,4 @@ rehash > /dev/null 2>&1 || true
 
 AE3_DIR="/usr/local/share/ae3"
 
-exec "$(which bash)" -e "$AE3_DIR/bin/setup/host" "$@"
+exec "$(which bash)" -e "$AE3_DIR/bin/setup/host" "--reinstall"
