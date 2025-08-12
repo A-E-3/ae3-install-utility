@@ -3,10 +3,10 @@
 #
 
 type UserRequireRoot >/dev/null 2>&1 || \
-	. "/usr/local/share/myx.common/bin/user/requireRoot"
+	. "/usr/local/share/myx.common/bin/user/requireRoot.Common"
 
 type ReplaceLine >/dev/null 2>&1 || \
-	. "/usr/local/share/myx.common/bin/lib/replaceLine"
+	. "/usr/local/share/myx.common/bin/lib/replaceLine.Common"
 
 UserIsRoot(){
 	return $(test `id -u` = 0);
