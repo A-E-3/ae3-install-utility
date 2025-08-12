@@ -7,7 +7,7 @@ myx.common setup/console
 #### temp: remove old ones
 
 type ReplaceLine >/dev/null 2>&1 || \
-	. "/usr/local/share/myx.common/bin/lib/replaceLine"
+	. "/usr/local/share/myx.common/bin/lib/replaceLine.Common"
 
 oldScriptName="${HOME}/.ae3/etc/bashrc"
 [ ! -f "$oldScriptName" ] || rm "$oldScriptName"
