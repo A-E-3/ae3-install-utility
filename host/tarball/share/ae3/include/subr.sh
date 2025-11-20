@@ -8,25 +8,24 @@ type UserRequireRoot >/dev/null 2>&1 || \
 type ReplaceLine >/dev/null 2>&1 || \
 	. "/usr/local/share/myx.common/bin/lib/replaceLine.Common"
 
-UserIsRoot(){
-	return $(test `id -u` = 0);
+UserIsRoot() { 
+	[ "$(id -u)" -eq 0 ]
 }
+
+#
+# Check user
+#
+UserIsOperator() { 
+	id -Gn | grep -qw ae3
+}
+
 
 
 #
 # Check user
 #
-UserIsOperator(){
-	return $(`id | grep -q '(ae3)'`);
-}
-
-
-
-#
-# Check user
-#
-UserIsDaemon(){
-	return $(test "`id -un`" = 'ae3' );
+UserIsDaemon() { 
+	[ "$(id -un)" = 'ae3' ]
 }
 
 
@@ -50,11 +49,10 @@ UserRequireDaemon(){
 
 
 GetAdminEmail(){
-	local FR="^root:"
-	grep -q -e "$FR" /etc/mail/aliases || { echo "ERROR: no admin email specified, use: ae3 config/email your@email.address" >&2 ; return 1; }
-	local TEMP=`grep -e "$FR" /etc/mail/aliases`
-	echo "${TEMP#root: }"
-	return 0;
+    awk -F': *' '/^root:/ {print $2; exit}' /etc/mail/aliases || {
+        echo "ERROR: no admin email specified, use: ae3 config/email your@email.address" >&2
+        return 1
+    }
 }
 
 
@@ -94,50 +92,52 @@ LoadDaemonSettings(){
 
 StoreDaemonSettings(){
 	UserRequireOperator
-	
-	cat > "$AE3_HOME/ae3d.conf" <<-EOF
-		ae3d_daemon="${ae3d_daemon}"
-		ae3d_assert="${ae3d_assert}"
-		ae3d_logging="${ae3d_logging}"
-		ae3d_optimize="${ae3d_optimize}"
-		ae3d_profile="${ae3d_profile}"
-		ae3d_storage="${ae3d_storage}"
-		ae3d_javaopts="${ae3d_javaopts}"
-		ae3d_ram="${ae3d_ram}"
-	EOF
+
+	printf '%s\n' \
+		"ae3d_daemon='${ae3d_daemon}'" \
+		"ae3d_assert='${ae3d_assert}'" \
+		"ae3d_logging='${ae3d_logging}'" \
+		"ae3d_optimize='${ae3d_optimize}'" \
+		"ae3d_profile='${ae3d_profile}'" \
+		"ae3d_storage='${ae3d_storage}'" \
+		"ae3d_javaopts='${ae3d_javaopts}'" \
+		"ae3d_ram='${ae3d_ram}'" \
+	> "$AE3_HOME/ae3d.conf.$$.tmp"
+
+	mv -f -- "$AE3_HOME/ae3d.conf.$$.tmp" "$AE3_HOME/ae3d.conf"
 }
 
 
 GetAssertionsMode(){
-	[ "$ae3d_assert" ] || LoadDaemonSettings
+	[ -n "$ae3d_assert" ] || LoadDaemonSettings
 	echo $ae3d_assert
 }
 
 
 GetDaemonProcessMode(){
-	[ "$ae3d_daemon" ] || LoadDaemonSettings
+	[ -n "$ae3d_daemon" ] || LoadDaemonSettings
 	echo $ae3d_daemon
 }
 
 GetLoggingLevel(){
-	[ "$ae3d_logging" ] || LoadDaemonSettings
+	[ -n "$ae3d_logging" ] || LoadDaemonSettings
 	echo $ae3d_logging
 }
 
 GetOptimizationGoal(){
-	[ "$ae3d_optimize" ] || LoadDaemonSettings
+	[ -n "$ae3d_optimize" ] || LoadDaemonSettings
 	echo $ae3d_optimize
 }
 
 GetProfilingMode(){
-	[ "$ae3d_profile" ] || LoadDaemonSettings
+	[ -n "$ae3d_profile" ] || LoadDaemonSettings
 	echo $ae3d_profile
 }
 
 
 
 GetProfilingOptions(){
-	[ "$ae3d_profile" ] || LoadDaemonSettings
+	[ -n "$ae3d_profile" ] || LoadDaemonSettings
 
 	case "$ae3d_profile" in
 		OFF)
@@ -160,17 +160,17 @@ GetProfilingOptions(){
 
 
 GetStorageDescription(){
-	[ "$ae3d_storage" ] || LoadDaemonSettings
+	[ -n "$ae3d_storage" ] || LoadDaemonSettings
 	echo $ae3d_storage
 }
 
 GetJavaOptions(){
-	[ "$ae3d_javaopts" ] || LoadDaemonSettings
+	[ "${ae3d_javaopts:-'**'}" = "**" ] || LoadDaemonSettings
 	echo $ae3d_javaopts
 }
 
 GetMemoryAllocation(){
-	[ "$ae3d_ram" ] || LoadDaemonSettings
+	[ -n "$ae3d_ram" ] || LoadDaemonSettings
 	echo $ae3d_ram
 }
 
@@ -181,13 +181,13 @@ Fetch(){
 	local FILE="$2"
 	set -e
 
-	if [ ! -z "`which curl || true`" ] ; then 
+	if command -v curl >/dev/null 2>&1 ; then 
 		curl --silent -o "$FILE" -L "$URL" ; chmod 664 "$FILE" ; return 0
 	fi
-	if [ ! -z "`which fetch || true`" ] ; then 
+	if command -v fetch >/dev/null 2>&1 ; then 
 		fetch -m -a -o "$FILE" "$URL" ; chmod 664 "$FILE" ; return 0
 	fi
-	if [ ! -z "`which wget || true`" ] ; then 
+	if command -v wget >/dev/null 2>&1 ; then 
 		wget --quiet -O "$FILE" "$URL" ; chmod 664 "$FILE" ; return 0
 	fi
 
@@ -197,13 +197,14 @@ Fetch(){
 
 
 GenerateToken(){
-	UserRequireOperator
-	local FOLDR=${AE3_HOME}/private/auth/tokens
-	[ -d $FOLDR ] || { mkdir -p $FOLDR; chown ae3:ae3 $FOLDR; }
-	local TOKEN=`dd if=/dev/random bs=32 count=1 2> /dev/null | hexdump -e '4/4 "%04x"'`
-	printf "`whoami`\x0a$TOKEN" > $FOLDR/$TOKEN
-	chown :ae3 $FOLDR/$TOKEN
-	echo $TOKEN
+    UserRequireOperator
+    local FOLDR="${AE3_HOME}/private/auth/tokens"
+    [ -d "$FOLDR" ] || { mkdir -p "$FOLDR"; chown ae3:ae3 "$FOLDR"; }
+    local TOKEN
+    TOKEN=$( dd if=/dev/urandom bs=32 count=1 2>/dev/null | od -An -tx1 | tr -d ' \n' )
+    printf '%s\n%s\n' "$(whoami)" "$TOKEN" > "$FOLDR/$TOKEN"
+    chown :ae3 "$FOLDR/$TOKEN"
+    echo "$TOKEN"
 }
 
 
