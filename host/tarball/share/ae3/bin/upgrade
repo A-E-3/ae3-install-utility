@@ -52,7 +52,8 @@ Ae3Upgrade(){
 	cd "$AE3_UPDATE"
 
 
-	PKG_SRC="https://myx.co.nz/distro/ae3"
+	local MYX_DISTRO_HOST="${MYX_DISTRO_HOST:-myx.co.nz}"
+	local PKG_SRC="https://${MYX_DISTRO_HOST}/distro/ae3"
 
 	wget -nv -N \
 		"$PKG_SRC/version" \
