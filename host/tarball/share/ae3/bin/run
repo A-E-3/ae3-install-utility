@@ -66,8 +66,8 @@ buildCommand(){
 		-Djava.awt.headless=true \
 		-Djava.net.preferIPv4Stack=true \
 		-Djava.net.preferIPv6Addresses=false \
-		-Dnetworkaddress.cache.ttl=60 \
-		-Dnetworkaddress.cache.negative.ttl=10 \
+		-Dsun.net.inetaddr.ttl=60 \
+		-Dsun.net.inetaddr.negative.ttl=10 \
 		-Dhttp.agent=ae3-`cat "$AE3_HOME/distro/version"` \
 		-Dae3=true \
 		-Dru.myx.ae3.properties.groupname=$ae3_mode \
