@@ -120,7 +120,7 @@ chmod ug=rwx,o= /usr/local/etc/ipfw.sh /usr/local/etc/ipfw-*.sh
 
 rm -f nohup.out || true
 nohup -- sh -c 'kldload ipfw_nat || true; service ipfw restart || service ipfw onestart || /usr/local/etc/ipfw.sh || true'
-cat nohup.out
+cat nohup.out || true
 
 
 echo 'Should listen on normal, like: 80, 443, etc... ports now'
